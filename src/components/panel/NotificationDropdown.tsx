@@ -21,7 +21,7 @@ const typeIcons: Record<NotificationType, typeof Info> = {
 
 const typeColors: Record<NotificationType, string> = {
   info: "text-blue-500 bg-blue-50",
-  update: "text-gold bg-gold/10",
+  update: "text-amber bg-amber/10",
   milestone: "text-green bg-green/10",
   return: "text-green bg-green/10",
 };
@@ -60,9 +60,9 @@ export default function NotificationDropdown({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg sm:w-96">
+        <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-[#ffffff] shadow-lg sm:w-96">
           <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-            <h3 className="text-sm font-semibold text-gray-900">
+            <h3 className="font-serif text-sm font-light text-gray-900">
               Notificaciones
             </h3>
             {unreadCount > 0 && (
@@ -83,7 +83,7 @@ export default function NotificationDropdown({
                     key={notification.id}
                     className={cn(
                       "flex gap-3 border-b border-gray-50 px-4 py-3 transition-colors hover:bg-gray-50",
-                      !notification.read && "bg-gold/[0.03]"
+                      !notification.read && "bg-amber/[0.03]"
                     )}
                   >
                     <div
@@ -113,7 +113,7 @@ export default function NotificationDropdown({
                       </p>
                     </div>
                     {!notification.read && (
-                      <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-gold" />
+                      <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-amber" />
                     )}
                   </div>
                 );
@@ -133,7 +133,7 @@ export default function NotificationDropdown({
               <Link
                 href={ROUTES.panelNotificaciones}
                 onClick={() => setOpen(false)}
-                className="block text-center text-sm font-medium text-gold hover:text-gold/80 transition-colors"
+                className="block text-center text-sm font-medium text-amber hover:text-amber/80 transition-colors"
               >
                 Ver todas las notificaciones
               </Link>

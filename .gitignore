@@ -34,3 +34,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.fuse_hidden*
+Homepage.html
+public/prompts_claude_code_v2.md

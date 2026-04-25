@@ -3,44 +3,53 @@
 import { cn } from "@/lib/utils";
 import { HTMLAttributes } from "react";
 
+type CardVariant = "ivory" | "dark";
+
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  variant?: "dark" | "light";
+  variant?: CardVariant;
+  hoverable?: boolean;
 }
 
+/**
+ * Generic container card.
+ *   - ivory (default): bg-ivory, 1px rule border
+ *   - dark: bg-black, subtle white/10 border
+ *   - hoverable or onClick → box-shadow on hover
+ *   - NO border-radius (sharp corners)
+ */
 export default function Card({
-  variant = "light",
+  variant = "ivory",
+  hoverable = false,
   className,
   onClick,
   children,
   ...props
 }: CardProps) {
-  const isDark = variant === "dark";
-  const isClickable = !!onClick;
+  const isClickable = !!onClick || hoverable;
+  const variantCls =
+    variant === "dark"
+      ? "bg-black text-white border border-white/10"
+      : "bg-ivory text-text border border-rule";
 
   return (
     <div
-      role={isClickable ? "button" : undefined}
-      tabIndex={isClickable ? 0 : undefined}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
       onClick={onClick}
       onKeyDown={
-        isClickable
+        onClick
           ? (e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                onClick?.(e as unknown as React.MouseEvent<HTMLDivElement>);
+                onClick(e as unknown as React.MouseEvent<HTMLDivElement>);
               }
             }
           : undefined
       }
       className={cn(
-        "rounded-xl p-6 transition-all",
-        isDark
-          ? "border border-gold/20 bg-white/5 backdrop-blur-sm"
-          : "border border-gray-200 bg-white shadow-sm",
-        isClickable &&
-          (isDark
-            ? "cursor-pointer hover:border-gold/40 hover:bg-white/10"
-            : "cursor-pointer hover:shadow-md hover:border-gray-300"),
+        "transition-shadow duration-300",
+        variantCls,
+        isClickable && "cursor-pointer hover:shadow-card",
         className ?? ""
       )}
       {...props}

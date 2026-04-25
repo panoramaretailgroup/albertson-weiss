@@ -17,7 +17,7 @@ const typeIcons: Record<NotificationType, typeof Info> = {
 
 const typeColors: Record<NotificationType, string> = {
   info: "text-blue-500 bg-blue-50",
-  update: "text-gold bg-gold/10",
+  update: "text-amber bg-amber/10",
   milestone: "text-green bg-green/10",
   return: "text-green bg-green/10",
 };
@@ -28,7 +28,7 @@ export default function ActivityTimeline({
 }: ActivityTimelineProps) {
   if (notifications.length === 0) {
     return (
-      <div className={cn("rounded-xl border border-gray-200 bg-white p-8 text-center", className)}>
+      <div className={cn("rounded-xl border border-gray-200 bg-[#ffffff] p-8 text-center", className)}>
         <Info className="mx-auto h-8 w-8 text-gray-200" />
         <p className="mt-2 text-sm text-gray-400">
           No hay actividad reciente
@@ -38,7 +38,7 @@ export default function ActivityTimeline({
   }
 
   return (
-    <div className={cn("rounded-xl border border-gray-200 bg-white", className)}>
+    <div className={cn("rounded-xl border border-gray-200 bg-[#ffffff]", className)}>
       <div className="divide-y divide-gray-100">
         {notifications.map((notification) => {
           const Icon = typeIcons[notification.type];

@@ -28,7 +28,7 @@ export default function Header({
     .toUpperCase();
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-gray-200 bg-white/80 px-4 backdrop-blur-md sm:px-6">
+    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-gray-200 bg-[#ffffff]/80 px-4 backdrop-blur-md sm:px-6">
       <div className="flex items-center gap-3">
         {/* Mobile menu trigger */}
         <button
@@ -58,7 +58,7 @@ export default function Header({
           <span className="hidden text-sm font-medium text-gray-700 sm:block">
             {displayName}
           </span>
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gold/10 text-xs font-semibold text-gold">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber/10 text-xs font-semibold text-amber">
             {initials}
           </div>
         </div>

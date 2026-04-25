@@ -1,235 +1,250 @@
 "use client";
 
 import PanelShell from "@/components/panel/PanelShell";
-import StatsCard from "@/components/ui/StatsCard";
-import Badge from "@/components/ui/Badge";
-import { formatCurrency, formatPercentage, formatDate } from "@/lib/utils";
-import { DollarSign, TrendingUp, BarChart3 } from "lucide-react";
-import type { Investment } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
+import { CheckCircle } from "lucide-react";
 import Image from "next/image";
 
-// Placeholder data
-const placeholderCompleted: Investment[] = [
+interface CompletedInvestment {
+  id: string;
+  brand: string;
+  model: string;
+  year: number;
+  thumbnail: string | null;
+  investedEur: number;
+  returnedEur: number;
+  roiPct: number;
+  durationDays: number;
+  completedAt: string;
+}
+
+// â”€â”€ Placeholder data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const completed: CompletedInvestment[] = [
   {
     id: "inv-c1",
-    user_id: "u1",
-    car_id: "cc1",
-    amount_eur: 12000,
-    expected_return_eur: 3000,
-    actual_return_eur: 3168,
-    status: "completed",
-    contract_url: null,
-    invested_at: "2023-09-15T10:00:00Z",
-    completed_at: "2023-12-10T10:00:00Z",
-    car: {
-      id: "cc1", brand: "Dodge", model: "Challenger SRT", year: 2022, vin: null,
-      engine: "6.4L V8", mileage_km: 15000, color: "Negro", equipment: [],
-      purchase_price_usd: null, target_sale_price_eur: null,
-      investment_needed_eur: 52000, investment_collected_eur: 52000,
-      estimated_return_pct: 24.5, estimated_duration_days: 88,
-      status: "completed", logistics_phase: 7, logistics_phases: [],
-      shipping_container: null, shipping_carrier: null, shipping_route: null,
-      shipping_eta: null, photos_showcase: [], photos_exterior: [],
-      photos_interior: [], photos_detail: [], thumbnail: null,
-      created_at: "2023-09-01", updated_at: "2023-12-10",
-    },
+    brand: "Dodge",
+    model: "Challenger SRT",
+    year: 2022,
+    thumbnail: null,
+    investedEur: 12000,
+    returnedEur: 15168,
+    roiPct: 26.4,
+    durationDays: 88,
+    completedAt: "2025-12-10",
   },
   {
     id: "inv-c2",
-    user_id: "u1",
-    car_id: "cc2",
-    amount_eur: 8000,
-    expected_return_eur: 1760,
-    actual_return_eur: 1904,
-    status: "completed",
-    contract_url: null,
-    invested_at: "2023-11-01T10:00:00Z",
-    completed_at: "2024-01-20T10:00:00Z",
-    car: {
-      id: "cc2", brand: "Tesla", model: "Model 3 Performance", year: 2023, vin: null,
-      engine: "Dual Motor AWD", mileage_km: 8000, color: "Blanco", equipment: [],
-      purchase_price_usd: null, target_sale_price_eur: null,
-      investment_needed_eur: 35000, investment_collected_eur: 35000,
-      estimated_return_pct: 21.2, estimated_duration_days: 65,
-      status: "completed", logistics_phase: 7, logistics_phases: [],
-      shipping_container: null, shipping_carrier: null, shipping_route: null,
-      shipping_eta: null, photos_showcase: [], photos_exterior: [],
-      photos_interior: [], photos_detail: [], thumbnail: null,
-      created_at: "2023-10-20", updated_at: "2024-01-20",
-    },
+    brand: "Tesla",
+    model: "Model 3 Performance",
+    year: 2023,
+    thumbnail: null,
+    investedEur: 8000,
+    returnedEur: 9696,
+    roiPct: 21.2,
+    durationDays: 65,
+    completedAt: "2026-01-20",
   },
 ];
 
-export default function InversionesCompletadasPage() {
-  const investments = placeholderCompleted;
-
-  const totalInvested = investments.reduce((s, i) => s + i.amount_eur, 0);
-  const totalReturns = investments.reduce(
-    (s, i) => s + (i.actual_return_eur ?? 0),
-    0
-  );
-  const avgReturn =
-    investments.length > 0
-      ? investments.reduce(
-          (s, i) =>
-            s +
-            ((i.actual_return_eur ?? 0) / i.amount_eur) * 100,
-          0
-        ) / investments.length
+export default function CompletadasPage() {
+  const totalInvested = completed.reduce((s, i) => s + i.investedEur, 0);
+  const totalReturned = completed.reduce((s, i) => s + i.returnedEur, 0);
+  const totalProfit = totalReturned - totalInvested;
+  const avgRoi =
+    completed.length > 0
+      ? completed.reduce((s, i) => s + i.roiPct, 0) / completed.length
       : 0;
 
   return (
     <PanelShell breadcrumb="Completadas">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Inversiones completadas
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Historial de operaciones finalizadas con éxito.
-        </p>
-      </div>
-
-      {investments.length > 0 ? (
-        <>
-          {/* Summary stats */}
-          <div className="grid gap-4 sm:grid-cols-3 mb-8">
-            <StatsCard
-              icon={<DollarSign className="h-5 w-5" />}
-              value={formatCurrency(totalInvested)}
-              label="Total invertido (histórico)"
-            />
-            <StatsCard
-              icon={<TrendingUp className="h-5 w-5" />}
-              value={`+${formatCurrency(totalReturns)}`}
-              label="Total retornos obtenidos"
-              trend={{ value: formatPercentage(avgReturn), positive: true }}
-            />
-            <StatsCard
-              icon={<BarChart3 className="h-5 w-5" />}
-              value={formatPercentage(avgReturn)}
-              label="Rentabilidad media"
-            />
-          </div>
-
-          {/* Cards */}
-          <div className="grid gap-4 lg:grid-cols-2">
-            {investments.map((investment) => {
-              const car = investment.car!;
-              const realReturn = investment.actual_return_eur ?? 0;
-              const realReturnPct = (realReturn / investment.amount_eur) * 100;
-
-              const investedDate = new Date(investment.invested_at);
-              const completedDate = new Date(investment.completed_at!);
-              const durationDays = Math.floor(
-                (completedDate.getTime() - investedDate.getTime()) / 86400000
-              );
-
-              return (
-                <div
-                  key={investment.id}
-                  className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
-                >
-                  <div className="flex flex-col sm:flex-row">
-                    {/* Image */}
-                    <div className="relative aspect-[16/10] sm:aspect-square sm:w-40 shrink-0">
-                      {car.thumbnail ? (
-                        <Image
-                          src={car.thumbnail}
-                          alt={`${car.brand} ${car.model}`}
-                          fill
-                          className="object-cover"
-                          sizes="160px"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center bg-gray-100">
-                          <svg
-                            className="h-8 w-8 text-gray-300"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            aria-hidden="true"
-                          >
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                            <circle cx="8.5" cy="8.5" r="1.5" />
-                            <polyline points="21 15 16 10 5 21" />
-                          </svg>
-                        </div>
-                      )}
-                      <div className="absolute left-2 top-2">
-                        <Badge color="gold">Completada</Badge>
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex flex-1 flex-col justify-between p-4">
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
-                          {car.brand} {car.model}
-                        </h3>
-                        <p className="text-sm text-gray-500">{car.year}</p>
-                      </div>
-
-                      <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
-                        <div>
-                          <span className="text-xs text-gray-400">Invertido</span>
-                          <p className="text-sm font-semibold text-gray-900">
-                            {formatCurrency(investment.amount_eur)}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="text-xs text-gray-400">
-                            Retorno obtenido
-                          </span>
-                          <p className="text-lg font-bold text-green">
-                            +{formatCurrency(realReturn)}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="text-xs text-gray-400">Rentabilidad</span>
-                          <p className="text-sm font-semibold text-green">
-                            +{formatPercentage(realReturnPct)}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="text-xs text-gray-400">Duración</span>
-                          <p className="text-sm font-medium text-gray-700">
-                            {durationDays} días
-                          </p>
-                        </div>
-                      </div>
-
-                      <p className="mt-3 text-xs text-gray-400">
-                        Completada el {formatDate(investment.completed_at!)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </>
-      ) : (
-        <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
-          <svg
-            className="mx-auto h-12 w-12 text-gray-200"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            aria-hidden="true"
-          >
-            <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
-            <polyline points="22 4 12 14.01 9 11.01" />
-          </svg>
-          <h3 className="mt-4 text-lg font-medium text-gray-900">
-            Aún no tienes inversiones completadas
-          </h3>
-          <p className="mt-2 text-sm text-gray-500">
-            Tus operaciones activas aparecerán aquí cuando se completen.
+      <div className="px-4 sm:px-6 lg:px-8 py-8 mx-auto max-w-[1280px]">
+        <div className="mb-8">
+          <h1 className="font-serif text-2xl font-light text-text">
+            Inversiones completadas
+          </h1>
+          <p className="mt-1 text-sm font-light text-muted">
+            Historial de operaciones finalizadas con Ã©xito.
           </p>
         </div>
-      )}
+
+        {completed.length > 0 ? (
+          <>
+            {/* Summary */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-[2px] mb-8">
+              <SummaryCard
+                label="Total invertido"
+                value={formatCurrency(totalInvested)}
+              />
+              <SummaryCard
+                label="Total retornado"
+                value={formatCurrency(totalReturned)}
+              />
+              <SummaryCard
+                label="Beneficio"
+                value={`+${formatCurrency(totalProfit)}`}
+                accent
+              />
+              <SummaryCard
+                label="ROI medio"
+                value={`${avgRoi.toFixed(1).replace(".", ",")}%`}
+                accent
+              />
+            </div>
+
+            {/* List */}
+            <div className="space-y-4">
+              {completed.map((inv) => (
+                <CompletedRow key={inv.id} inv={inv} />
+              ))}
+            </div>
+          </>
+        ) : (
+          <EmptyState />
+        )}
+      </div>
     </PanelShell>
+  );
+}
+
+function SummaryCard({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string;
+  accent?: boolean;
+}) {
+  return (
+    <div className="bg-[#f8f5ef] border border-rule p-5">
+      <div className="font-sans font-normal text-[9px] uppercase tracking-[0.22em] text-muted mb-2">
+        {label}
+      </div>
+      <div
+        className={cn(
+          "num text-[22px] sm:text-[24px] font-light leading-none",
+          accent ? "text-amber" : "text-text"
+        )}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function CompletedRow({ inv }: { inv: CompletedInvestment }) {
+  const profit = inv.returnedEur - inv.investedEur;
+  const completedDate = new Intl.DateTimeFormat("es-ES", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(inv.completedAt));
+
+  return (
+    <div className="overflow-hidden border border-rule bg-[#f8f5ef]">
+      <div className="flex flex-col sm:flex-row">
+        {/* Thumbnail */}
+        <div className="relative w-full sm:w-[200px] h-[140px] sm:h-auto shrink-0 bg-ivory-deep">
+          {inv.thumbnail ? (
+            <Image
+              src={inv.thumbnail}
+              alt={`${inv.brand} ${inv.model}`}
+              fill
+              className="object-cover"
+              sizes="200px"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              <CheckCircle
+                className="h-8 w-8 text-muted"
+                strokeWidth={1.2}
+                aria-hidden="true"
+              />
+            </div>
+          )}
+          <div className="absolute top-3 left-3">
+            <span className="inline-flex items-center gap-1 bg-amber text-black font-sans text-[9px] uppercase tracking-[0.22em] px-2 py-1">
+              <CheckCircle className="h-3 w-3" strokeWidth={2} />
+              Completada
+            </span>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 p-5 sm:p-6">
+          <div className="mb-4">
+            <div className="font-sans text-[9px] uppercase tracking-[0.22em] text-muted mb-1">
+              {inv.brand} Â· {inv.year}
+            </div>
+            <h2 className="font-serif text-xl font-light text-text leading-tight">
+              {inv.model}
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <Metric
+              label="Invertido"
+              value={formatCurrency(inv.investedEur)}
+            />
+            <Metric
+              label="Retornado"
+              value={`+${formatCurrency(profit)}`}
+              accent
+            />
+            <Metric label="ROI" value={`${inv.roiPct.toFixed(1).replace(".", ",")}%`} accent />
+            <Metric label="DuraciÃ³n" value={`${inv.durationDays} dÃ­as`} />
+          </div>
+
+          <div className="mt-4 pt-4 border-t border-rule font-sans text-[10px] uppercase tracking-[0.22em] text-muted">
+            Completada el <span className="num text-text">{completedDate}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Metric({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string;
+  accent?: boolean;
+}) {
+  return (
+    <div>
+      <div className="font-sans font-normal text-[8px] uppercase tracking-[0.22em] text-muted mb-1">
+        {label}
+      </div>
+      <div
+        className={cn(
+          "num text-[15px] font-light leading-none",
+          accent ? "text-amber" : "text-text"
+        )}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className=" border border-rule bg-[#f8f5ef] p-12 text-center">
+      <CheckCircle
+        className="mx-auto h-10 w-10 text-rule"
+        strokeWidth={1.5}
+      />
+      <h3 className="mt-4 font-serif text-lg font-light text-text">
+        AÃºn no tienes inversiones completadas
+      </h3>
+      <p className="mt-2 text-sm font-light text-muted max-w-md mx-auto">
+        Tus operaciones activas aparecerÃ¡n aquÃ­ cuando se completen y liquiden
+        los retornos.
+      </p>
+    </div>
   );
 }

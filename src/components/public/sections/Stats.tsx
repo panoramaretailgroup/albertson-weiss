@@ -1,109 +1,111 @@
 "use client";
 
-import FadeIn from "@/components/public/FadeIn";
-import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import { motion, useInView, useReducedMotion } from "framer-motion";
+import { Fragment, useRef } from "react";
+import { useCountAnimation } from "@/hooks/useCountAnimation";
 
-interface StatItem {
-  value: number;
-  suffix: string;
+interface Stat {
+  /** Numeric target for counter animation */
+  targetValue?: number;
+  /** Static display when not a simple number (e.g. "6–9") */
+  staticValue?: string;
   prefix?: string;
+  suffix?: string;
   label: string;
 }
 
-const stats: StatItem[] = [
-  { prefix: "+", value: 500, suffix: "K EUR", label: "en operaciones gestionadas" },
-  { value: 25, suffix: "%", label: "rentabilidad media por operación" },
-  { value: 15, suffix: "", label: "vehículos importados" },
-  { value: 100, suffix: "%", label: "operaciones completadas con éxito" },
+const stats: Stat[] = [
+  { targetValue: 340, suffix: "+", label: "Vehículos importados" },
+  { targetValue: 25, suffix: "%", label: "Rentabilidad media" },
+  { staticValue: "6–9", suffix: " meses", label: "Período medio" },
+  { staticValue: "€2M", suffix: "+", label: "Capital desplegado" },
 ];
 
-function AnimatedCounter({
-  value,
-  suffix,
-  prefix = "",
-}: {
-  value: number;
-  suffix: string;
-  prefix?: string;
-}) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const started = useRef(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !started.current) {
-          started.current = true;
-
-          const duration = 2000;
-          const startTime = performance.now();
-
-          const animate = (now: number) => {
-            const elapsed = now - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            // Ease out cubic
-            const eased = 1 - Math.pow(1 - progress, 3);
-            setCount(Math.round(eased * value));
-
-            if (progress < 1) {
-              requestAnimationFrame(animate);
-            }
-          };
-
-          requestAnimationFrame(animate);
-        }
-      },
-      { threshold: 0.3 }
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [value]);
+export default function Stats() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.2 });
+  const reduceMotion = useReducedMotion() ?? false;
 
   return (
-    <span ref={ref}>
-      {prefix}
-      {count}
-      {suffix}
-    </span>
+    <section
+      ref={ref}
+      className="bg-black py-12 px-6 sm:px-10 lg:px-[88px]"
+    >
+      <div className="mx-auto max-w-shell flex flex-wrap items-center justify-center gap-y-8">
+        {stats.map((stat, i) => (
+          <Fragment key={stat.label}>
+            {i > 0 && (
+              <div
+                className="hidden sm:block self-stretch w-px bg-white/[0.08] mx-8 md:mx-14"
+                aria-hidden="true"
+              />
+            )}
+            <StatCell
+              stat={stat}
+              index={i}
+              trigger={inView}
+              reduceMotion={reduceMotion}
+              className={cn(
+                i > 0 && "sm:ml-0",
+                "w-1/2 sm:w-auto text-center sm:text-left"
+              )}
+            />
+          </Fragment>
+        ))}
+      </div>
+    </section>
   );
 }
 
-export default function Stats() {
-  return (
-    <section className="relative py-32">
-      {/* Background decorations */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-x-0 top-0">
-          <div className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
-        </div>
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <div className="h-[400px] w-[400px] rounded-full bg-gold/[0.03] blur-3xl" />
-        </div>
-      </div>
+function StatCell({
+  stat,
+  index,
+  trigger,
+  reduceMotion,
+  className,
+}: {
+  stat: Stat;
+  index: number;
+  trigger: boolean;
+  reduceMotion: boolean;
+  className?: string;
+}) {
+  const animatedValue = useCountAnimation(stat.targetValue ?? 0, {
+    trigger: trigger && stat.targetValue !== undefined,
+    duration: 2000,
+    delay: index * 150,
+    reduceMotion,
+  });
 
-      <div className="relative mx-auto max-w-7xl px-6">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat, index) => (
-            <FadeIn key={stat.label} delay={index * 0.1}>
-              <div className="text-center">
-                <p className="font-serif text-5xl font-light text-gold sm:text-6xl">
-                  <AnimatedCounter
-                    value={stat.value}
-                    suffix={stat.suffix}
-                    prefix={stat.prefix}
-                  />
-                </p>
-                <p className="mt-3 text-sm text-cream/50">{stat.label}</p>
-              </div>
-            </FadeIn>
-          ))}
-        </div>
+  const display =
+    stat.targetValue !== undefined
+      ? `${stat.prefix ?? ""}${Math.round(animatedValue)}${stat.suffix ?? ""}`
+      : `${stat.prefix ?? ""}${stat.staticValue ?? ""}${stat.suffix ?? ""}`;
+
+  return (
+    <motion.div
+      initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
+      animate={
+        trigger
+          ? { opacity: 1, y: 0 }
+          : reduceMotion
+            ? { opacity: 1, y: 0 }
+            : { opacity: 0, y: 15 }
+      }
+      transition={
+        reduceMotion
+          ? { duration: 0 }
+          : { duration: 0.5, delay: (index * 150) / 1000 }
+      }
+      className={className}
+    >
+      <div className="num font-light text-[28px] tracking-[0.01em] text-white leading-none tabular-nums">
+        {display}
       </div>
-    </section>
+      <div className="font-sans font-light text-[8.5px] uppercase tracking-[0.22em] text-muted mt-[5px]">
+        {stat.label}
+      </div>
+    </motion.div>
   );
 }

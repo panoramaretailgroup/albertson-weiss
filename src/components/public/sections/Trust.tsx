@@ -1,76 +1,135 @@
 "use client";
 
-import FadeIn from "@/components/public/FadeIn";
-import { Shield, Eye, BarChart3, Ban } from "lucide-react";
+import { motion, useInView } from "framer-motion";
+import { Shield, Eye, BarChart3, Ban, type LucideIcon } from "lucide-react";
+import { useRef } from "react";
+import SectionLabel from "@/components/ui/SectionLabel";
 
-const trustItems = [
+interface TrustCardData {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+}
+
+const cards: TrustCardData[] = [
   {
     icon: Shield,
     title: "Contratos legales",
     description:
-      "Préstamo privado bilateral regulado por ley española. Seguridad jurídica total.",
+      "Préstamo privado bilateral regulado por ley española. Seguridad jurídica total para tu inversión.",
   },
   {
     icon: Eye,
     title: "Transparencia total",
     description:
-      "Sigue cada operación en tiempo real: desde la subasta hasta la venta final.",
+      "Sigue cada operación en tiempo real: desde la subasta en EE.UU. hasta la venta final en Europa.",
   },
   {
     icon: BarChart3,
     title: "Track record verificable",
     description:
-      "Historial completo de operaciones pasadas con cifras reales.",
+      "Historial completo de operaciones pasadas con cifras reales y resultados auditables.",
   },
   {
     icon: Ban,
     title: "Sin sorpresas",
     description:
-      "Rentabilidad fija pactada. Sin comisiones ocultas.",
+      "Rentabilidad fija pactada por contrato. Sin comisiones ocultas ni letra pequeña.",
   },
 ];
 
+const EASE = [0.21, 0.47, 0.32, 0.98] as const;
+
 export default function Trust() {
+  const ref = useRef<HTMLElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+
   return (
-    <section className="relative py-32">
-      {/* Top separator */}
-      <div className="absolute inset-x-0 top-0">
-        <div className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
-      </div>
-
-      <div className="mx-auto max-w-7xl px-6">
-        <FadeIn className="text-center">
-          <h2 className="font-serif text-4xl font-light text-cream sm:text-5xl">
-            Por qué confiar en{" "}
-            <span className="text-gold">Albertson & Weiss</span>
+    <section
+      ref={ref}
+      className="bg-black py-[120px] px-6 sm:px-10 lg:px-[88px]"
+    >
+      <div className="mx-auto max-w-shell">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+          transition={{ duration: 0.7, ease: EASE }}
+          className="text-center mb-20"
+        >
+          <div className="flex justify-center mb-5">
+            <SectionLabel variant="dark">Confianza</SectionLabel>
+          </div>
+          <h2 className="font-serif font-light text-[40px] sm:text-[48px] lg:text-[56px] leading-[1.05] tracking-[-0.01em] text-white">
+            Por qué confiar en
+            <br />
+            <em className="italic text-amber">Albertson &amp; Weiss</em>
           </h2>
-        </FadeIn>
+        </motion.div>
 
-        <div className="mt-20 grid gap-6 sm:grid-cols-2">
-          {trustItems.map((item, index) => (
-            <FadeIn key={item.title} delay={index * 0.1}>
-              <div className="group rounded-2xl border border-gold/10 bg-white/[0.03] p-8 transition-all duration-300 hover:border-gold/25 hover:bg-white/[0.06]">
-                <div className="flex items-start gap-5">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-gold/20 bg-gold/5 transition-all duration-300 group-hover:border-gold/40 group-hover:bg-gold/10">
-                    <item.icon
-                      className="h-5 w-5 text-gold"
-                      strokeWidth={1.5}
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-cream">
-                      {item.title}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-cream/50">
-                      {item.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </FadeIn>
+        {/* 2x2 grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px]">
+          {cards.map((card, i) => (
+            <TrustCard
+              key={card.title}
+              card={card}
+              index={i}
+              inView={inView}
+            />
           ))}
         </div>
       </div>
     </section>
+  );
+}
+
+function TrustCard({
+  card,
+  index,
+  inView,
+}: {
+  card: TrustCardData;
+  index: number;
+  inView: boolean;
+}) {
+  const Icon = card.icon;
+  const cardDelay = 0.15 + index * 0.1;
+  const iconDelay = cardDelay + 0.2;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+      transition={{ duration: 0.6, delay: cardDelay, ease: EASE }}
+      className="group p-10 bg-white/[0.03] border border-white/[0.06] transition-colors duration-300 hover:bg-white/[0.05]"
+    >
+      {/* Icon container */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={
+          inView
+            ? { opacity: 1, scale: 1 }
+            : { opacity: 0, scale: 0.8 }
+        }
+        transition={{ duration: 0.5, delay: iconDelay, ease: "easeOut" }}
+        className="inline-flex h-14 w-14 items-center justify-center bg-amber/10"
+      >
+        <Icon
+          className="h-8 w-8 text-amber"
+          strokeWidth={1.25}
+          aria-hidden={true}
+        />
+      </motion.div>
+
+      {/* Title */}
+      <h3 className="mt-6 font-sans font-medium text-[16px] leading-tight text-white">
+        {card.title}
+      </h3>
+
+      {/* Description */}
+      <p className="mt-3 font-sans font-light text-[13px] leading-[1.85] text-muted">
+        {card.description}
+      </p>
+    </motion.div>
   );
 }

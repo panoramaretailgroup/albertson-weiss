@@ -33,13 +33,14 @@ CREATE TABLE cars (
   status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'funded', 'in_transit', 'sold', 'completed')),
   logistics_phase INTEGER DEFAULT 1,
   logistics_phases JSONB DEFAULT '[
-    {"phase": 1, "name": "Comprado en subasta", "completed": false, "date": null, "photos": []},
-    {"phase": 2, "name": "En transito a almacen USA", "completed": false, "date": null, "photos": []},
-    {"phase": 3, "name": "En almacen USA", "completed": false, "date": null, "photos": []},
-    {"phase": 4, "name": "Contenedor cargado", "completed": false, "date": null, "photos": []},
-    {"phase": 5, "name": "En transito maritimo", "completed": false, "date": null, "photos": [], "tracking": {}},
-    {"phase": 6, "name": "Descargado en puerto Europa", "completed": false, "date": null, "photos": []},
-    {"phase": 7, "name": "Listo para entrega", "completed": false, "date": null, "photos": []}
+    {"phase": 1, "name": "Sourced & Acquired", "completed": false, "date": null, "photos": []},
+    {"phase": 2, "name": "In Transit to Warehouse", "completed": false, "date": null, "photos": []},
+    {"phase": 3, "name": "Import & Customs", "completed": false, "date": null, "photos": []},
+    {"phase": 4, "name": "Preparation & Certification", "completed": false, "date": null, "photos": []},
+    {"phase": 5, "name": "Listed for Sale", "completed": false, "date": null, "photos": []},
+    {"phase": 6, "name": "Under Offer", "completed": false, "date": null, "photos": []},
+    {"phase": 7, "name": "Sold", "completed": false, "date": null, "photos": []},
+    {"phase": 8, "name": "Payout Processed", "completed": false, "date": null, "photos": []}
   ]'::jsonb,
   shipping_container TEXT,
   shipping_carrier TEXT,

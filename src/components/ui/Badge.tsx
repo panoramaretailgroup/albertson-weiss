@@ -1,31 +1,47 @@
 import { cn } from "@/lib/utils";
 
-type BadgeColor = "gold" | "green" | "red" | "gray" | "blue";
+type BadgeVariant = "open" | "full" | "soon" | "neutral";
+
+// Legacy color prop (kept for backward compat during redesign migration)
+type LegacyColor = "gold" | "green" | "red" | "gray" | "blue";
 
 interface BadgeProps {
-  color?: BadgeColor;
+  variant?: BadgeVariant;
+  /** @deprecated use `variant` instead */
+  color?: LegacyColor;
   children: React.ReactNode;
   className?: string;
 }
 
-const colorStyles: Record<BadgeColor, string> = {
-  gold: "bg-gold/15 text-gold border-gold/30",
-  green: "bg-green/15 text-green border-green/30",
-  red: "bg-red-500/15 text-red-400 border-red-500/30",
-  gray: "bg-gray-500/15 text-gray-400 border-gray-500/30",
-  blue: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+const variantStyles: Record<BadgeVariant, string> = {
+  open: "bg-status-open text-white",
+  full: "bg-status-full text-white",
+  soon: "bg-status-soon text-white",
+  neutral: "bg-text text-ivory",
+};
+
+const legacyMap: Record<LegacyColor, BadgeVariant> = {
+  gold: "soon",
+  green: "open",
+  red: "full",
+  gray: "full",
+  blue: "neutral",
 };
 
 export default function Badge({
-  color = "gold",
+  variant,
+  color,
   children,
   className,
 }: BadgeProps) {
+  const resolvedVariant: BadgeVariant =
+    variant ?? (color ? legacyMap[color] : "open");
+
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium",
-        colorStyles[color],
+        "inline-block font-sans font-normal text-[8px] uppercase tracking-[0.25em] px-3 py-[5px]",
+        variantStyles[resolvedVariant],
         className ?? ""
       )}
     >

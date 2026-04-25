@@ -9,28 +9,42 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        black: "#0D0D0D",
-        cream: "#F5F0E8",
-        gold: "#C9A96E",
-        green: "#1D9E75",
-        brown: "#3D352C",
-        white: "#FFFFFF",
-        gray: {
-          50: "#F9FAFB",
-          100: "#F3F4F6",
-          200: "#E5E7EB",
-          300: "#D1D5DB",
-          400: "#9CA3AF",
-          500: "#6B7280",
-          600: "#4B5563",
-          700: "#374151",
-          800: "#1F2937",
-          900: "#111827",
+        // ── Brand palette ──────────────────────────────────────────
+        black: "#0d0c0a",
+        ivory: {
+          DEFAULT: "#f3efe8",
+          deep: "#ede9e1",
+        },
+        text: "#1a1612",
+        muted: "#8a8480",
+        mutedDk: "#4a4540",
+        rule: "#c8c0b4",
+        amber: "#c4a26a",
+        white: "#f5f1ea",
+
+        // ── Status semantic colors ────────────────────────────────
+        green: "#1d9e75",
+        status: {
+          open: "#4a9e6e",
+          full: "#888888",
+          soon: "#c4a26a",
         },
       },
       fontFamily: {
-        serif: ["Cormorant Garamond", "Georgia", "serif"],
-        sans: ["Inter", "system-ui", "sans-serif"],
+        serif: ["var(--font-cormorant)", "Georgia", "serif"],
+        sans: ["var(--font-raleway)", "system-ui", "sans-serif"],
+        num: ["var(--font-dm-sans)", "system-ui", "sans-serif"],
+      },
+      maxWidth: {
+        shell: "1440px",
+      },
+      letterSpacing: {
+        "label": "0.3em",
+        "label-tight": "0.24em",
+        "label-wide": "0.42em",
+      },
+      boxShadow: {
+        card: "0 8px 40px rgba(0,0,0,0.1)",
       },
     },
   },

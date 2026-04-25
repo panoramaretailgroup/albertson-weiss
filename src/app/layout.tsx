@@ -1,20 +1,29 @@
 import type { Metadata } from "next";
-import { Inter, Cormorant_Garamond } from "next/font/google";
+import { Cormorant_Garamond, Raleway, DM_Sans } from "next/font/google";
 import AuthProvider from "@/components/AuthProvider";
 import ToastProvider from "@/components/ToastProvider";
 import Analytics from "@/components/Analytics";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   variable: "--font-cormorant",
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const raleway = Raleway({
+  subsets: ["latin"],
+  variable: "--font-raleway",
+  weight: ["200", "300", "400", "500"],
+  display: "swap",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-dm-sans",
+  weight: ["300", "400"],
   display: "swap",
 });
 
@@ -24,21 +33,21 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     template: "%s | Albertson & Weiss Motors",
-    default: "Albertson & Weiss Motors | Inversiones en Vehículos Premium",
+    default: "Albertson & Weiss Motors | Private Investment Platform",
   },
   description:
-    "Invierte en vehículos premium americanos importados a Europa. Rentabilidad del 25% anualizado con contratos de préstamo privado regulados.",
+    "Invest in hand-selected luxury vehicles sourced from the US market, imported and sold across Europe. Private investment platform for luxury vehicle arbitrage.",
   icons: {
     icon: "/favicon.svg",
     apple: "/favicon.svg",
   },
   openGraph: {
     type: "website",
-    locale: "es_ES",
+    locale: "en_US",
     siteName: "Albertson & Weiss Motors",
-    title: "Albertson & Weiss Motors | Inversiones en Vehículos Premium",
+    title: "Albertson & Weiss Motors | Private Investment Platform",
     description:
-      "Invierte en vehículos premium americanos importados a Europa. Rentabilidad del 25% anualizado con contratos de préstamo privado regulados.",
+      "Invest in hand-selected luxury vehicles sourced from the US market, imported and sold across Europe.",
     images: [
       {
         url: "/og-image.svg",
@@ -50,9 +59,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Albertson & Weiss Motors | Inversiones en Vehículos Premium",
+    title: "Albertson & Weiss Motors",
     description:
-      "Invierte en vehículos premium americanos importados a Europa. Rentabilidad del 25% anualizado.",
+      "Invest in hand-selected luxury vehicles sourced from the US market.",
     images: ["/og-image.svg"],
   },
   robots: {
@@ -67,10 +76,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${inter.variable} ${cormorant.variable}`}>
+    <html
+      lang="en"
+      className={`${cormorant.variable} ${raleway.variable} ${dmSans.variable}`}
+    >
       <body className="font-sans antialiased">
         <a href="#main-content" className="skip-link">
-          Ir al contenido principal
+          Skip to content
         </a>
         <AuthProvider>
           <ToastProvider>

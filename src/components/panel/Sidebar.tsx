@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import { useAuth } from "@/hooks/useAuth";
+import Logo from "@/components/ui/Logo";
 import {
   LayoutDashboard,
   Search,
@@ -54,19 +55,14 @@ export default function Sidebar({
   const sidebarContent = (
     <>
       {/* Logo */}
-      <div className="px-4 pb-6 pt-2">
-        <Link href={ROUTES.home} className="flex flex-col leading-none">
-          <span className="font-serif text-sm font-light tracking-[0.15em] text-gray-900">
-            ALBERTSON & WEISS
-          </span>
-          <span className="font-serif text-[8px] font-light tracking-[0.25em] text-gold">
-            MOTORS
-          </span>
+      <div className="px-6 pt-2 pb-8 flex justify-center">
+        <Link href={ROUTES.home} aria-label="Albertson & Weiss Motors — Inicio">
+          <Logo variant="dark" />
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-2">
+      <nav className="flex-1 space-y-0.5 px-2">
         {navItems.map((item) => {
           const active = isActive(item.href);
           const isNotifications = item.href === ROUTES.panelNotificaciones;
@@ -77,27 +73,30 @@ export default function Sidebar({
               href={item.href}
               onClick={onMobileClose}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                "group relative flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors",
                 active
-                  ? "bg-gold/10 text-gray-900"
-                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                  ? "text-white"
+                  : "text-white/50 hover:text-white"
               )}
             >
+              {active && (
+                <span
+                  className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[2px] bg-amber"
+                  aria-hidden="true"
+                />
+              )}
               <item.icon
                 className={cn(
-                  "h-5 w-5",
-                  active ? "text-gold" : "text-gray-400"
+                  "h-[18px] w-[18px] shrink-0",
+                  active ? "text-amber" : "text-white/40 group-hover:text-white/70"
                 )}
                 strokeWidth={1.75}
               />
               <span className="flex-1">{item.label}</span>
               {isNotifications && unreadCount > 0 && (
-                <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-amber px-1.5 text-[10px] font-semibold text-black">
                   {unreadCount > 99 ? "99+" : unreadCount}
                 </span>
-              )}
-              {active && (
-                <span className="h-1.5 w-1.5 rounded-full bg-gold" />
               )}
             </Link>
           );
@@ -105,12 +104,15 @@ export default function Sidebar({
       </nav>
 
       {/* Sign out */}
-      <div className="border-t border-gray-100 px-2 py-4">
+      <div className="border-t border-white/10 px-2 py-4">
         <button
           onClick={handleSignOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900"
+          className="group flex w-full items-center gap-3 px-4 py-2.5 text-sm font-medium text-white/50 transition-colors hover:text-white"
         >
-          <LogOut className="h-5 w-5 text-gray-400" strokeWidth={1.75} />
+          <LogOut
+            className="h-[18px] w-[18px] text-white/40 group-hover:text-white/70"
+            strokeWidth={1.75}
+          />
           Cerrar sesión
         </button>
       </div>
@@ -120,7 +122,7 @@ export default function Sidebar({
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-gray-200 bg-white pt-6 lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col bg-black pt-8 lg:flex">
         {sidebarContent}
       </aside>
 
@@ -128,28 +130,26 @@ export default function Sidebar({
       {mobileOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div
-            className="absolute inset-0 bg-black/30"
+            className="absolute inset-0 bg-black/60"
             onClick={onMobileClose}
             aria-hidden="true"
           />
-          <aside className="absolute inset-y-0 left-0 w-64 bg-white pt-6 shadow-xl animate-in slide-in-from-left duration-200">
-            <div className="absolute right-3 top-3">
-              <button
-                onClick={onMobileClose}
-                className="rounded-lg p-1.5 text-gray-400 hover:text-gray-600"
-                aria-label="Cerrar menú"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+          <aside className="absolute inset-y-0 left-0 flex w-64 flex-col bg-black pt-8 animate-in slide-in-from-left duration-200">
+            <button
+              onClick={onMobileClose}
+              className="absolute right-3 top-3 rounded-lg p-1.5 text-white/60 hover:text-white"
+              aria-label="Cerrar menú"
+            >
+              <X className="h-5 w-5" />
+            </button>
             {sidebarContent}
           </aside>
         </div>
       )}
 
       {/* Mobile bottom tab bar */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white lg:hidden">
-        <div className="flex items-center justify-around py-1">
+      <nav className="fixed inset-x-0 bottom-0 z-30 bg-black lg:hidden">
+        <div className="flex items-center justify-around">
           {navItems.slice(0, 5).map((item) => {
             const active = isActive(item.href);
             const isNotifications = item.href === ROUTES.panelNotificaciones;
@@ -159,14 +159,23 @@ export default function Sidebar({
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "relative flex flex-col items-center gap-0.5 px-3 py-2 text-[10px]",
-                  active ? "text-gold" : "text-gray-400"
+                  "relative flex flex-col items-center gap-0.5 px-3 py-3 text-[10px] transition-colors",
+                  active ? "text-white" : "text-white/40"
                 )}
               >
-                <item.icon className="h-5 w-5" strokeWidth={1.75} />
+                {active && (
+                  <span
+                    className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-8 bg-amber"
+                    aria-hidden="true"
+                  />
+                )}
+                <item.icon
+                  className={cn("h-5 w-5", active && "text-amber")}
+                  strokeWidth={1.75}
+                />
                 <span>{item.label}</span>
                 {isNotifications && unreadCount > 0 && (
-                  <span className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
+                  <span className="absolute right-1 top-2 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amber px-1 text-[9px] font-bold text-black">
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}

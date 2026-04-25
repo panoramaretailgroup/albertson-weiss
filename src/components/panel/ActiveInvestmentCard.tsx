@@ -4,9 +4,7 @@ import { cn } from "@/lib/utils";
 import { formatCurrency, formatPercentage } from "@/lib/utils";
 import { CAR_STATUSES } from "@/lib/constants";
 import Badge from "@/components/ui/Badge";
-import ProgressBar from "@/components/ui/ProgressBar";
 import type { Investment, CarStatus } from "@/lib/types";
-import { Clock, TrendingUp } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -15,13 +13,27 @@ interface ActiveInvestmentCardProps {
   className?: string;
 }
 
-const statusBadgeColor: Record<CarStatus, "gold" | "green" | "blue" | "gray" | "red"> = {
+const statusBadgeColor: Record<
+  CarStatus,
+  "gold" | "green" | "blue" | "gray" | "red"
+> = {
   open: "gold",
   funded: "blue",
   in_transit: "blue",
   sold: "green",
   completed: "green",
 };
+
+const LOGISTICS_PHASES = [
+  "Subasta",
+  "Recogida",
+  "Almacén USA",
+  "Embarque",
+  "Tránsito",
+  "Aduana EU",
+  "Preparación",
+  "Venta",
+];
 
 export default function ActiveInvestmentCard({
   investment,
@@ -30,97 +42,134 @@ export default function ActiveInvestmentCard({
   const car = investment.car;
   if (!car) return null;
 
-  const logisticsProgress = car.logistics_phase
-    ? Math.round((car.logistics_phase / 7) * 100)
-    : 0;
-
-  // Estimate remaining days
-  const investedDate = new Date(investment.invested_at);
-  const elapsedDays = Math.floor(
-    (Date.now() - investedDate.getTime()) / 86400000
+  const currentPhase = Math.min(
+    Math.max(car.logistics_phase ?? 1, 1),
+    LOGISTICS_PHASES.length
   );
-  const remainingDays = Math.max(car.estimated_duration_days - elapsedDays, 0);
+  const phaseName = LOGISTICS_PHASES[currentPhase - 1];
+  const phasePct = Math.round((currentPhase / LOGISTICS_PHASES.length) * 100);
 
   return (
     <Link
       href={`/panel/activas/${investment.id}`}
       className={cn(
-        "group block overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md hover:border-gray-300",
+        "group block border border-rule bg-[#f8f5ef] transition-colors hover:bg-ivory-deep",
         className
       )}
     >
-      <div className="flex flex-col sm:flex-row">
-        {/* Image */}
-        <div className="relative aspect-[16/10] sm:aspect-square sm:w-40 shrink-0">
-          {car.thumbnail ? (
-            <Image
-              src={car.thumbnail}
-              alt={`${car.brand} ${car.model}`}
-              fill
-              className="object-cover"
-              sizes="160px"
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center bg-gray-100">
-              <svg
-                className="h-8 w-8 text-gray-300"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                aria-hidden="true"
-              >
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21 15 16 10 5 21" />
-              </svg>
+      {/* Image */}
+      <div className="relative aspect-[16/9] w-full overflow-hidden">
+        {car.thumbnail ? (
+          <Image
+            src={car.thumbnail}
+            alt={`${car.brand} ${car.model}`}
+            fill
+            className="object-cover"
+            sizes="(max-width: 1024px) 100vw, 50vw"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center bg-ivory-deep">
+            <svg
+              className="h-10 w-10 text-rule"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              aria-hidden="true"
+            >
+              <rect x="3" y="3" width="18" height="18" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+          </div>
+        )}
+        <div className="absolute left-3 top-3">
+          <Badge color={statusBadgeColor[car.status]}>
+            {CAR_STATUSES[car.status]}
+          </Badge>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-6">
+        {/* Eyebrow */}
+        <div className="font-sans font-light text-[9px] uppercase tracking-[0.2em] text-muted mb-1.5">
+          {car.brand} · {car.year}
+        </div>
+
+        {/* Title */}
+        <h3 className="font-serif font-light text-[22px] leading-tight text-text mb-5">
+          {car.model}
+        </h3>
+
+        {/* Metrics */}
+        <div className="grid grid-cols-2 gap-x-8 mb-5">
+          <div>
+            <div className="font-sans font-light text-[8px] uppercase tracking-[0.22em] text-muted mb-1">
+              Tu inversión
             </div>
-          )}
-          <div className="absolute left-2 top-2">
-            <Badge color={statusBadgeColor[car.status]}>
-              {CAR_STATUSES[car.status]}
-            </Badge>
+            <div className="num text-[18px] font-light text-text">
+              {formatCurrency(investment.amount_eur)}
+            </div>
+          </div>
+          <div>
+            <div className="font-sans font-light text-[8px] uppercase tracking-[0.22em] text-muted mb-1">
+              Rentabilidad est.
+            </div>
+            <div className="num text-[18px] font-light text-green">
+              {investment.expected_return_eur
+                ? `+${formatCurrency(investment.expected_return_eur)}`
+                : `+${formatPercentage(car.estimated_return_pct)}`}
+            </div>
           </div>
         </div>
 
-        {/* Content */}
-        <div className="flex flex-1 flex-col justify-between p-4">
-          <div>
-            <h3 className="font-semibold text-gray-900">
-              {car.brand} {car.model}
-            </h3>
-            <p className="text-sm text-gray-500">{car.year}</p>
-          </div>
+        {/* Step tracker */}
+        <div className="flex items-center gap-[3px] mb-2">
+          {LOGISTICS_PHASES.map((_, j) => {
+            const idx = j + 1;
+            const done = idx < currentPhase;
+            const active = idx === currentPhase;
+            return (
+              <div
+                key={j}
+                className={cn(
+                  "flex-1 h-[3px]",
+                  done ? "bg-text" : active ? "bg-amber" : "bg-rule"
+                )}
+              />
+            );
+          })}
+        </div>
 
-          <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
-            <div>
-              <span className="text-xs text-gray-400">Tu inversión</span>
-              <p className="text-sm font-semibold text-gray-900">
-                {formatCurrency(investment.amount_eur)}
-              </p>
-            </div>
-            <div>
-              <span className="text-xs text-gray-400">Rentabilidad esp.</span>
-              <p className="flex items-center gap-1 text-sm font-semibold text-green">
-                <TrendingUp className="h-3.5 w-3.5" />
-                {investment.expected_return_eur
-                  ? `+${formatCurrency(investment.expected_return_eur)}`
-                  : formatPercentage(car.estimated_return_pct)}
-              </p>
-            </div>
-          </div>
+        {/* Phase label row */}
+        <div className="flex items-center justify-between">
+          <span className="flex items-center gap-1.5 text-amber text-[9px] uppercase tracking-[0.14em]">
+            <span
+              className="inline-block w-1 h-1 rounded-full bg-amber"
+              aria-hidden="true"
+            />
+            {phaseName}
+          </span>
+          <span className="num text-muted text-[9px]">{phasePct}%</span>
+        </div>
 
-          {/* Logistics mini-bar */}
-          <div className="mt-3">
-            <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
-              <span>Progreso logístico</span>
-              <span className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                {remainingDays > 0 ? `~${remainingDays} días` : "Finalizando"}
-              </span>
-            </div>
-            <ProgressBar value={logisticsProgress} color="gold" />
-          </div>
+        {/* Ver detalle */}
+        <div className="flex items-center gap-1.5 justify-end mt-4 font-sans text-[9px] uppercase tracking-[0.22em] text-muted group-hover:text-text transition-colors">
+          Ver detalle
+          <svg
+            width="10"
+            height="6"
+            viewBox="0 0 16 10"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M0 5h14M10 1l4 4-4 4"
+              stroke="currentColor"
+              strokeWidth="0.8"
+            />
+          </svg>
         </div>
       </div>
     </Link>

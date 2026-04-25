@@ -1,159 +1,262 @@
 "use client";
 
 import PanelShell from "@/components/panel/PanelShell";
-import Badge from "@/components/ui/Badge";
-import ProgressBar from "@/components/ui/ProgressBar";
-import Button from "@/components/ui/Button";
-import { CAR_STATUSES } from "@/lib/constants";
-import { formatCurrency, formatPercentage, calculateProgress } from "@/lib/utils";
-import type { CarStatus } from "@/lib/types";
-import { TrendingUp, Clock, Calendar, Cog, Gauge, Palette } from "lucide-react";
+import VehicleGallery from "@/components/panel/VehicleGallery";
+import VehicleSpecs from "@/components/panel/VehicleSpecs";
+import VehicleTimeline from "@/components/panel/VehicleTimeline";
+import VehicleDocuments from "@/components/panel/VehicleDocuments";
+import InvestPanel from "@/components/panel/InvestPanel";
+import { useStickyScroll } from "@/hooks/useStickyScroll";
 import Link from "next/link";
+import type { Car } from "@/lib/types";
 
-// Placeholder
-const car = {
-  id: "opp-1", brand: "Chevrolet", model: "Corvette C8", year: 2023,
-  engine: "6.2L V8", mileage_km: 8000, color: "Blanco",
-  equipment: ["Performance Package", "Magnetic Ride", "Head-Up Display", "Carbon Flash"],
-  investment_needed_eur: 62000, investment_collected_eur: 15000,
-  estimated_return_pct: 28, estimated_duration_days: 100,
-  status: "open" as CarStatus,
+// ── Placeholder car data ───────────────────────────────────────────────
+// Uses Jeep Wrangler 2025 (which has real photos under /public/images/cars/).
+const JEEP_BASE = "/images/cars/jeep-wrangler-2025";
+
+const car: Car = {
+  id: "opp-jeep-2025",
+  brand: "Jeep",
+  model: "Wrangler Rubicon",
+  year: 2025,
+  vin: "1C4PJXFG2SW566069",
+  engine: "3.6L Pentastar V6",
+  mileage_km: 13802,
+  color: "Granite Crystal Metallic",
+  equipment: [
+    "Rubicon Package",
+    "Steel Bumpers",
+    "Rock Rails",
+    "LED Lighting Group",
+    "Cold Weather Group",
+    "Trailer Tow Package",
+  ],
+  purchase_price_usd: 48500,
+  target_sale_price_eur: 72000,
+  investment_needed_eur: 62000,
+  investment_collected_eur: 27400,
+  estimated_return_pct: 25,
+  estimated_duration_days: 90,
+  status: "open",
+  logistics_phase: 3,
+  logistics_phases: [],
+  shipping_container: null,
+  shipping_carrier: null,
+  shipping_route: null,
+  shipping_eta: null,
+  photos_showcase: [
+    `${JEEP_BASE}/showcase/front.jpg`,
+    `${JEEP_BASE}/showcase/front2.jpg`,
+    `${JEEP_BASE}/showcase/specs.jpg`,
+  ],
+  photos_exterior: [
+    `${JEEP_BASE}/exterior/front.jpg`,
+    `${JEEP_BASE}/exterior/front-detail.jpg`,
+    `${JEEP_BASE}/exterior/side.jpg`,
+    `${JEEP_BASE}/exterior/rear-quarter.jpg`,
+    `${JEEP_BASE}/exterior/rear.jpg`,
+    `${JEEP_BASE}/exterior/rear-alt.jpg`,
+    `${JEEP_BASE}/exterior/rear-alt2.jpg`,
+    `${JEEP_BASE}/exterior/top-angle.jpg`,
+  ],
+  photos_interior: [
+    `${JEEP_BASE}/interior/dashboard.jpg`,
+    `${JEEP_BASE}/interior/dashboard-alt.jpg`,
+    `${JEEP_BASE}/interior/front-seats.jpg`,
+    `${JEEP_BASE}/interior/rear-seats.jpg`,
+    `${JEEP_BASE}/interior/rubicon-seats.jpg`,
+  ],
+  photos_detail: [],
+  thumbnail: `${JEEP_BASE}/showcase/front.jpg`,
+  created_at: "2026-03-08",
+  updated_at: "2026-04-15",
 };
 
-const statusBadgeColor: Record<CarStatus, "gold" | "green" | "blue" | "gray" | "red"> = {
-  open: "gold", funded: "blue", in_transit: "blue", sold: "green", completed: "green",
-};
+const logisticsPhotos = [
+  `${JEEP_BASE}/logistics/pickup-1.jpg`,
+  `${JEEP_BASE}/logistics/pickup-2.jpg`,
+  `${JEEP_BASE}/logistics/pickup-3.jpg`,
+  `${JEEP_BASE}/logistics/pickup-4.jpg`,
+  `${JEEP_BASE}/logistics/pickup-5.jpg`,
+  `${JEEP_BASE}/logistics/pickup-interior.jpg`,
+  `${JEEP_BASE}/logistics/warehouse-1.jpg`,
+  `${JEEP_BASE}/logistics/warehouse-2.jpg`,
+  `${JEEP_BASE}/logistics/warehouse-3.jpg`,
+  `${JEEP_BASE}/logistics/tracking-container.jpg`,
+  `${JEEP_BASE}/logistics/tracking-route-1.jpg`,
+  `${JEEP_BASE}/logistics/tracking-timeline.jpg`,
+];
+
+// ── Page ───────────────────────────────────────────────────────────────
+
+function splitModel(model: string): { head: string; tail: string } {
+  const parts = model.trim().split(" ");
+  if (parts.length === 1) return { head: "", tail: parts[0] };
+  const tail = parts[parts.length - 1];
+  const head = parts.slice(0, -1).join(" ");
+  return { head, tail };
+}
 
 export default function PanelCarDetailPage({
   params: _params,
 }: {
   params: { carId: string };
 }) {
-  const progress = calculateProgress(car.investment_collected_eur, car.investment_needed_eur);
+  const basePriceK = Math.round(car.investment_needed_eur / 1000);
+  const { head: modelHead, tail: modelTail } = splitModel(car.model);
+  const sidebarRef = useStickyScroll<HTMLDivElement>(72);
 
   return (
     <PanelShell breadcrumb={`${car.brand} ${car.model}`}>
-      <Link
-        href="/panel/oportunidades"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 transition-colors"
-      >
-        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M19 12H5M12 19l-7-7 7-7" />
-        </svg>
-        Volver a oportunidades
-      </Link>
+      {/* ── Breadcrumb ────────────────────────────────────────── */}
+      <div className="flex items-center gap-2.5 text-[9.5px] uppercase tracking-[0.22em] font-normal mb-8">
+        <Link
+          href="/panel/oportunidades"
+          className="text-muted hover:text-text transition-colors"
+        >
+          Oportunidades
+        </Link>
+        <span className="text-rule">/</span>
+        <span className="text-muted">{car.brand}</span>
+        <span className="text-rule">/</span>
+        <span className="text-text">{car.model}</span>
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Main */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Image placeholder */}
-          <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-gray-200 bg-gray-100">
-            <div className="flex h-full items-center justify-center">
-              <svg className="h-16 w-16 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden="true">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21 15 16 10 5 21" />
-              </svg>
-            </div>
-            <div className="absolute left-3 top-3">
-              <Badge color={statusBadgeColor[car.status]}>{CAR_STATUSES[car.status]}</Badge>
-            </div>
+      {/* ── Vehicle header ─────────────────────────────────────── */}
+      <header className="border-b border-rule pb-10 mb-10 flex flex-col lg:flex-row lg:justify-between lg:items-end gap-10 lg:gap-20">
+        <div>
+          <div className="font-sans text-[10px] uppercase tracking-[0.3em] text-muted font-normal mb-4">
+            {car.brand} · {car.year}
           </div>
-
-          {/* Title + specs */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6">
-            <h1 className="text-2xl font-semibold text-gray-900">
-              {car.brand} {car.model} {car.year}
-            </h1>
-
-            <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-              {[
-                { icon: Calendar, label: "Año", value: String(car.year) },
-                { icon: Cog, label: "Motor", value: car.engine },
-                { icon: Gauge, label: "Km", value: `${car.mileage_km.toLocaleString("es-ES")} km` },
-                { icon: Palette, label: "Color", value: car.color },
-              ].map((spec) => (
-                <div key={spec.label}>
-                  <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                    <spec.icon className="h-3.5 w-3.5" />
-                    {spec.label}
-                  </div>
-                  <p className="mt-1 text-sm font-medium text-gray-900">{spec.value}</p>
-                </div>
-              ))}
-            </div>
-
-            {car.equipment.length > 0 && (
-              <div className="mt-6 border-t border-gray-100 pt-4">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                  Equipamiento
-                </h3>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {car.equipment.map((item) => (
-                    <span key={item} className="rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs text-gray-600">
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          <h1 className="font-serif font-light text-[56px] lg:text-[72px] leading-[1] tracking-[-0.015em] text-text">
+            {modelHead && <span>{modelHead} </span>}
+            <em className="italic">{modelTail}</em>
+          </h1>
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          <div className="sticky top-20 rounded-xl border border-gray-200 bg-white p-6">
-            <h2 className="text-lg font-semibold text-gray-900">Datos de inversión</h2>
+        <div className="flex flex-wrap gap-x-12 gap-y-6 items-end">
+          <HeaderMetric label="Precio base" value={`€${basePriceK}k`} />
+          <HeaderMetric
+            label="ROI objetivo"
+            value={`${car.estimated_return_pct}%`}
+            accent
+          />
+          <HeaderMetric
+            label="Plazo estimado"
+            value={`${car.estimated_duration_days} días`}
+          />
+          <HeaderMetric label="Inversión mín." value="€1.000" />
+        </div>
+      </header>
 
-            <div className="mt-5 space-y-4">
-              <div>
-                <span className="text-xs text-gray-400">Inversión necesaria</span>
-                <p className="mt-1 text-2xl font-semibold text-gray-900">
-                  {formatCurrency(car.investment_needed_eur)}
-                </p>
-              </div>
+      {/* ── Gallery ───────────────────────────────────────────── */}
+      <VehicleGallery
+        carName={`${car.brand} ${car.model}`}
+        categories={{
+          showcase: car.photos_showcase,
+          exterior: car.photos_exterior,
+          interior: car.photos_interior,
+          logistics: logisticsPhotos,
+        }}
+      />
 
-              <div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-400">Financiado</span>
-                  <span className="font-medium text-gray-900">{progress}%</span>
-                </div>
-                <ProgressBar value={progress} color="gold" className="mt-2" />
-                <p className="mt-1 text-xs text-gray-400">
-                  {formatCurrency(car.investment_collected_eur)} recaudados
-                </p>
-              </div>
+      {/* ── Body: left column + sticky-scroll-through right sidebar ─── */}
+      <div className="flex gap-16 items-start">
+        {/* Left */}
+        <div className="flex-1 flex flex-col gap-[88px] min-w-0">
+          <VehicleSpecs
+            car={car}
+            extras={{
+              stockNumber: "AWM-2025-0142",
+              origin: "Dallas, TX · Subasta Manheim",
+              horsepower: "285 hp @ 6.400 rpm",
+              torque: "347 Nm @ 4.100 rpm",
+              transmission: "Automática 8 velocidades",
+              drivetrain: "4x4 Command-Trac Selec-Trac",
+              interior: "Cuero negro con pespuntes rojos",
+              wheels: 'Llantas aleación 17" Rubicon',
+              owners: 1,
+              accidentHistory: "Sin accidentes reportados",
+              serviceHistory: "Service completo en concesionario",
+            }}
+          />
 
-              <div className="h-px bg-gray-100" />
+          <VehicleTimeline currentPhase={car.logistics_phase} />
 
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">Rentabilidad est.</span>
-                <span className="flex items-center gap-1 text-lg font-semibold text-green">
-                  <TrendingUp className="h-4 w-4" />
-                  {formatPercentage(car.estimated_return_pct)}
+          <VehicleDocuments />
+
+          {/* Risk disclosure */}
+          <section className="bg-ivory-deep border border-rule p-10 lg:p-12">
+            <div className="flex items-center gap-3.5 mb-6">
+              <div className="w-7 h-px bg-rule" aria-hidden="true" />
+              <span className="font-sans text-[9.5px] uppercase tracking-[0.3em] text-muted font-normal">
+                Divulgación de riesgos
+              </span>
+            </div>
+            <div className="font-sans text-[11.5px] text-muted font-light leading-[1.85] tracking-[0.015em] max-w-[920px] space-y-5">
+              <p>
+                La inversión en vehículos de lujo individuales conlleva riesgo
+                material. Los rendimientos proyectados son objetivos de
+                suscripción basados en datos históricos del mercado y no
+                constituyen garantías. Los rendimientos reales dependen del
+                precio de venta final europeo, el periodo de tenencia, los
+                movimientos de divisa y costes imprevistos.{" "}
+                <span className="font-normal text-text">
+                  Capital en riesgo: puede recuperar menos de lo invertido.
                 </span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">Duración est.</span>
-                <span className="flex items-center gap-1 text-sm font-medium text-gray-900">
-                  <Clock className="h-4 w-4 text-gray-400" />
-                  ~{car.estimated_duration_days} días
-                </span>
-              </div>
-
-              <div className="h-px bg-gray-100" />
-
-              <Button variant="primary" size="lg" className="w-full">
-                Invertir en este vehículo
-              </Button>
-              <p className="text-center text-[11px] text-gray-400">
-                Se formalizará un contrato de préstamo privado
+              </p>
+              <p>
+                Esta página es únicamente un resumen. Antes de invertir, lea el
+                Memorándum de Inversión, la Divulgación de Riesgos y el
+                Contrato de Suscripción completos. Albertson & Weiss Motors
+                S.à r.l. está registrada en Luxemburgo (B.123.456) y
+                supervisada por la Commission de Surveillance du Secteur
+                Financier (CSSF). Las inversiones no están cubiertas por el
+                esquema de garantía de depósitos de Luxemburgo.
               </p>
             </div>
-          </div>
+          </section>
         </div>
+
+        {/* Right — sticky scroll-through invest sidebar (desktop only) */}
+        <aside
+          ref={sidebarRef}
+          className="hidden lg:block w-[380px] shrink-0 self-start"
+        >
+          <InvestPanel car={car} />
+        </aside>
+      </div>
+
+      {/* Mobile invest panel — shown below content, no sticky */}
+      <div className="lg:hidden mt-12">
+        <InvestPanel car={car} />
       </div>
     </PanelShell>
+  );
+}
+
+function HeaderMetric({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string;
+  accent?: boolean;
+}) {
+  return (
+    <div className="text-right">
+      <div className="font-sans text-[8.5px] uppercase tracking-[0.22em] text-muted font-normal mb-2">
+        {label}
+      </div>
+      <div
+        className={
+          "num text-[26px] font-light tracking-[0.01em] leading-none " +
+          (accent ? "text-amber" : "text-text")
+        }
+      >
+        {value}
+      </div>
+    </div>
   );
 }

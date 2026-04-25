@@ -3,46 +3,67 @@
 @tailwind utilities;
 
 :root {
-  /* Brand colors */
-  --black: #0D0D0D;
-  --cream: #F5F0E8;
-  --gold: #C9A96E;
-  --green: #1D9E75;
-  --brown: #3D352C;
-  --white: #FFFFFF;
+  /* Brand palette */
+  --black: #0d0c0a;
+  --ivory: #f3efe8;
+  --ivory-deep: #ede9e1;
+  --text: #1a1612;
+  --muted: #8a8480;
+  --rule: #c8c0b4;
+  --amber: #c4a26a;
+  --white: #f5f1ea;
 
-  /* Gray scale */
-  --gray-50: #F9FAFB;
-  --gray-100: #F3F4F6;
-  --gray-200: #E5E7EB;
-  --gray-300: #D1D5DB;
-  --gray-400: #9CA3AF;
-  --gray-500: #6B7280;
-  --gray-600: #4B5563;
-  --gray-700: #374151;
-  --gray-800: #1F2937;
-  --gray-900: #111827;
+  /* Status */
+  --status-open: #4a9e6e;
+  --status-full: #888888;
+  --status-soon: #c4a26a;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  font-family: "Inter", system-ui, sans-serif;
+  background: var(--ivory);
+  color: var(--text);
+  font-family: var(--font-raleway), "Raleway", system-ui, sans-serif;
+  font-weight: 300;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-/* Public site: dark luxury aesthetic */
-.theme-public {
-  background-color: var(--black);
-  color: var(--cream);
+/* ── Numeric utility: DM Sans with tabular + lining nums ────────── */
+.num {
+  font-family: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
 }
 
-/* Panel/Admin: clean dashboard aesthetic */
-.theme-panel {
-  background-color: var(--white);
-  color: var(--gray-900);
+/* ── Custom scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ivory);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--rule);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
 }
 
-/* ── Skip to content (a11y) ─────────────────────────────────────────── */
+/* ── Skip to content (a11y) ────────────────────────────────────── */
 .skip-link {
   position: absolute;
   top: -100%;
@@ -50,77 +71,51 @@ body {
   transform: translateX(-50%);
   z-index: 9999;
   padding: 0.75rem 1.5rem;
-  background: var(--gold);
-  color: var(--black);
-  font-weight: 600;
-  font-size: 0.875rem;
-  border-radius: 0 0 0.5rem 0.5rem;
+  background: var(--text);
+  color: var(--ivory);
+  font-weight: 400;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
   text-decoration: none;
   transition: top 0.15s ease;
 }
-
 .skip-link:focus {
   top: 0;
 }
 
-/* ── Focus rings ────────────────────────────────────────────────────── */
+/* ── Focus rings ───────────────────────────────────────────────── */
 @layer base {
-  /* Default focus-visible for all interactive elements */
   :focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px var(--gold);
-    border-radius: 4px;
+    box-shadow: 0 0 0 2px var(--text);
   }
-
-  /* Override for panel/admin where we want a more standard ring */
-  .theme-panel :focus-visible,
-  [class*="bg-gray-50"] :focus-visible,
-  [class*="bg-white"] :focus-visible {
-    box-shadow: 0 0 0 2px #3b82f6;
-  }
-
-  /* Remove ring from elements that handle their own focus styles */
-  [class*="focus-visible:ring"] :focus-visible,
-  [class*="focus:ring"] :focus-visible {
+  [class*="focus-visible:ring"]:focus-visible,
+  [class*="focus:ring"]:focus-visible {
     box-shadow: none;
   }
 }
 
-/* ── Smooth scrolling ───────────────────────────────────────────────── */
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
+/* ── Skeleton shimmer ──────────────────────────────────────────── */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
   }
 }
-
-/* ── Skeleton animation ─────────────────────────────────────────────── */
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--gray-200) 25%,
-    var(--gray-100) 50%,
-    var(--gray-200) 75%
-  );
+  background: linear-gradient(90deg, #e4e0d8 25%, #ebe7df 50%, #e4e0d8 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
-  border-radius: 0.5rem;
 }
 
-.skeleton-dark {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.05) 25%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0.05) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-  border-radius: 0.5rem;
+/* ── Legacy theme classes (no-op wrappers kept for backward compat) */
+.theme-public,
+.theme-panel {
+  background-color: var(--ivory);
+  color: var(--text);
 }
 
 @layer utilities {

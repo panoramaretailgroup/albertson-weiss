@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import OportunidadesContent from "./_content";
 
 export const metadata: Metadata = {
-  title: "Oportunidades de inversión",
+  title: "Vehículos disponibles",
   description:
-    "Explora los vehículos premium disponibles para inversión. Coches americanos con rentabilidad estimada del 20-30%.",
+    "Explora nuestra selección curada de vehículos premium abiertos a inversión. Inventario completo con rentabilidades estimadas del 15-25%.",
 };
 
 export default function OportunidadesPage() {

@@ -7,7 +7,6 @@ import { Car, CarStatus } from "@/lib/types";
 import Image from "next/image";
 import Badge from "./Badge";
 import ProgressBar from "./ProgressBar";
-import Button from "./Button";
 
 interface CarCardProps {
   car: Car;
@@ -35,14 +34,15 @@ export default function CarCard({
     car.investment_collected_eur,
     car.investment_needed_eur
   );
+  const ctaLabel = car.status === "open" ? "Ver oportunidad" : "Ver detalles";
 
   const content = (
     <div
       className={cn(
-        "group overflow-hidden rounded-xl border transition-all",
+        "group border transition-colors",
         isDark
-          ? "border-gold/20 bg-white/5 hover:border-gold/40 hover:bg-white/10"
-          : "border-gray-200 bg-white shadow-sm hover:shadow-md hover:border-gray-300",
+          ? "border-white/10 bg-white/[0.03] hover:bg-white/[0.06]"
+          : "border-rule bg-[#f8f5ef] hover:bg-ivory-deep",
         className ?? ""
       )}
     >
@@ -60,13 +60,13 @@ export default function CarCard({
           <div
             className={cn(
               "flex h-full items-center justify-center",
-              isDark ? "bg-brown/50" : "bg-gray-100"
+              isDark ? "bg-white/[0.02]" : "bg-ivory-deep"
             )}
           >
             <svg
               className={cn(
                 "h-12 w-12",
-                isDark ? "text-cream/20" : "text-gray-300"
+                isDark ? "text-white/20" : "text-rule"
               )}
               viewBox="0 0 24 24"
               fill="none"
@@ -74,7 +74,7 @@ export default function CarCard({
               strokeWidth="1.5"
               aria-hidden="true"
             >
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <rect x="3" y="3" width="18" height="18" />
               <circle cx="8.5" cy="8.5" r="1.5" />
               <polyline points="21 15 16 10 5 21" />
             </svg>
@@ -88,87 +88,92 @@ export default function CarCard({
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="p-6">
+        {/* Eyebrow */}
+        <div
+          className={cn(
+            "font-sans font-light text-[9px] uppercase tracking-[0.2em] mb-1.5",
+            isDark ? "text-white/50" : "text-muted"
+          )}
+        >
+          {car.brand} · {car.year}
+        </div>
+
         {/* Title */}
         <h3
           className={cn(
-            "text-lg font-semibold",
-            isDark ? "text-cream" : "text-gray-900"
+            "font-serif font-light text-[22px] leading-tight mb-4",
+            isDark ? "text-white" : "text-text"
           )}
         >
-          {car.brand} {car.model}
+          {car.model}
         </h3>
 
-        {/* Info */}
-        <div
-          className={cn(
-            "mt-1 flex items-center gap-2 text-sm",
-            isDark ? "text-cream/60" : "text-gray-500"
-          )}
-        >
-          <span>{car.year}</span>
-          {car.engine && (
-            <>
-              <span className="text-gold">·</span>
-              <span>{car.engine}</span>
-            </>
-          )}
+        {/* Metrics row */}
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <div
+              className={cn(
+                "font-sans font-light text-[8px] uppercase tracking-[0.22em] mb-1",
+                isDark ? "text-white/50" : "text-muted"
+              )}
+            >
+              Target ROI
+            </div>
+            <div className="num text-[18px] font-light text-amber">
+              {formatPercentage(car.estimated_return_pct)}
+            </div>
+          </div>
+          <div className="text-right">
+            <div
+              className={cn(
+                "font-sans font-light text-[8px] uppercase tracking-[0.22em] mb-1",
+                isDark ? "text-white/50" : "text-muted"
+              )}
+            >
+              Timeline
+            </div>
+            <div
+              className={cn(
+                "num text-[18px] font-light",
+                isDark ? "text-white" : "text-text"
+              )}
+            >
+              {car.estimated_duration_days}d
+            </div>
+          </div>
         </div>
 
         {/* Progress */}
-        <div className="mt-4">
-          <div className="flex items-center justify-between text-sm mb-1.5">
-            <span className={isDark ? "text-cream/60" : "text-gray-500"}>
-              {formatCurrency(car.investment_collected_eur)} de{" "}
-              {formatCurrency(car.investment_needed_eur)}
-            </span>
-            <span className={cn("font-medium", isDark ? "text-cream" : "text-gray-900")}>
-              {progress}%
-            </span>
-          </div>
-          <ProgressBar value={progress} color="gold" />
-        </div>
-
-        {/* Stats row */}
-        <div className="mt-4 flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <svg
-              className="h-4 w-4 text-green"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-              <polyline points="17 6 23 6 23 12" />
-            </svg>
-            <span className="text-sm font-semibold text-green">
-              {formatPercentage(car.estimated_return_pct)} est.
-            </span>
-          </div>
+        <ProgressBar value={progress} variant={isDark ? "dark" : "text"} />
+        <div className="flex items-center justify-between mt-2">
           <span
             className={cn(
-              "text-xs",
-              isDark ? "text-cream/50" : "text-gray-400"
+              "num text-[9px] tracking-[0.14em]",
+              isDark ? "text-white/50" : "text-muted"
             )}
           >
-            ~{car.estimated_duration_days} días
+            {progress}% financiado
+          </span>
+          <span
+            className={cn(
+              "num text-[9px] tracking-[0.14em]",
+              isDark ? "text-white/50" : "text-muted"
+            )}
+          >
+            {formatCurrency(car.investment_collected_eur)} /{" "}
+            {formatCurrency(car.investment_needed_eur)}
           </span>
         </div>
 
         {/* CTA */}
-        <div className="mt-4">
-          <Button
-            variant={isDark ? "secondary" : "primary"}
-            size="sm"
-            className="w-full"
-            aria-label={`Ver detalles de ${car.brand} ${car.model}`}
-          >
-            {car.status === "open" ? "Ver oportunidad" : "Ver detalles"}
-          </Button>
+        <div
+          className={cn(
+            "mt-5 w-full text-center font-sans text-[10px] uppercase tracking-[0.26em] font-normal py-3.5 transition-opacity hover:opacity-85",
+            isDark ? "bg-ivory text-text" : "bg-text text-ivory"
+          )}
+        >
+          {ctaLabel}
         </div>
       </div>
     </div>

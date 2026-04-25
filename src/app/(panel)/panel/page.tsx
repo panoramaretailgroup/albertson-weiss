@@ -1,19 +1,15 @@
 "use client";
 
 import PanelShell from "@/components/panel/PanelShell";
-import StatsCard from "@/components/ui/StatsCard";
+import PortfolioHeader, {
+  type PortfolioStat,
+} from "@/components/panel/PortfolioHeader";
 import CarCard from "@/components/ui/CarCard";
 import ActiveInvestmentCard from "@/components/panel/ActiveInvestmentCard";
-import ActivityTimeline from "@/components/panel/ActivityTimeline";
+import PortfolioCharts from "@/components/panel/PortfolioCharts";
 import { useAuth } from "@/hooks/useAuth";
 import { ROUTES } from "@/lib/constants";
-import { formatCurrency, formatPercentage } from "@/lib/utils";
-import {
-  DollarSign,
-  TrendingUp,
-  BarChart3,
-  Clock,
-} from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
 import Link from "next/link";
 import type { Car, Investment, Notification } from "@/lib/types";
 
@@ -201,24 +197,63 @@ export default function PanelDashboardPage() {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   // Stats calculations
-  const totalInvested = investments
-    .filter((i) => i.status === "active")
-    .reduce((sum, i) => sum + i.amount_eur, 0);
+  const activeInvestments = investments.filter((i) => i.status === "active");
+  const completedInvestments = investments.filter(
+    (i) => i.status === "completed"
+  );
 
-  const totalReturns = investments
-    .filter((i) => i.status === "completed" && i.actual_return_eur)
-    .reduce((sum, i) => sum + (i.actual_return_eur ?? 0), 0);
+  const totalInvested = activeInvestments.reduce(
+    (sum, i) => sum + i.amount_eur,
+    0
+  );
 
-  const activeCount = investments.filter((i) => i.status === "active").length;
+  // For the demo: project a 15% gain on the active capital.
+  // Once Supabase is wired, replace with actual mark-to-market value.
+  const projectedGainPct = 15;
+  const projectedGain = Math.round((totalInvested * projectedGainPct) / 100);
+  const currentValue = totalInvested + projectedGain;
+  const availableBalance = 0;
 
-  // Find nearest expected return
-  const nearestReturn = investments
-    .filter((i) => i.status === "active" && i.expected_return_eur)
-    .sort(
-      (a, b) =>
-        (a.car?.estimated_duration_days ?? 999) -
-        (b.car?.estimated_duration_days ?? 999)
-    )[0];
+  const stats: PortfolioStat[] = [
+    {
+      label: "Capital invertido",
+      value: formatCurrency(totalInvested),
+      subtitle: `En ${activeInvestments.length} ${
+        activeInvestments.length === 1 ? "vehículo" : "vehículos"
+      }`,
+    },
+    {
+      label: "Valor actual",
+      value: formatCurrency(currentValue),
+      subtitle: "Realizado + proyectado",
+      trend: `+${projectedGainPct.toString().replace(".", ",")},0%`,
+      trendPositive: true,
+    },
+    {
+      label: "Rentabilidad real",
+      value: formatCurrency(projectedGain),
+      subtitle: `De ${completedInvestments.length} ${
+        completedInvestments.length === 1
+          ? "operación cerrada"
+          : "operaciones cerradas"
+      }`,
+      accent: true,
+    },
+    {
+      label: "Capital activo",
+      value: formatCurrency(totalInvested),
+      subtitle: `En ${activeInvestments.length} ${
+        activeInvestments.length === 1
+          ? "posición activa"
+          : "posiciones activas"
+      }`,
+    },
+    {
+      label: "Saldo disponible",
+      value: formatCurrency(availableBalance),
+      subtitle: "Disponible para invertir",
+    },
+  ];
 
   return (
     <PanelShell
@@ -226,81 +261,48 @@ export default function PanelDashboardPage() {
       notifications={notifications}
       unreadCount={unreadCount}
     >
-      {/* Greeting */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Hola, {displayName}
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Aquí tienes un resumen de tus inversiones.
-        </p>
-      </div>
-
-      {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatsCard
-          icon={<DollarSign className="h-5 w-5" />}
-          value={formatCurrency(totalInvested)}
-          label="Capital invertido"
-        />
-        <StatsCard
-          icon={<TrendingUp className="h-5 w-5" />}
-          value={totalReturns > 0 ? `+${formatCurrency(totalReturns)}` : "—"}
-          label="Rentabilidad acumulada"
-          trend={
-            totalReturns > 0
-              ? { value: formatPercentage(25.3), positive: true }
-              : undefined
-          }
-        />
-        <StatsCard
-          icon={<BarChart3 className="h-5 w-5" />}
-          value={String(activeCount)}
-          label="Inversiones activas"
-        />
-        <StatsCard
-          icon={<Clock className="h-5 w-5" />}
-          value={
-            nearestReturn?.expected_return_eur
-              ? `+${formatCurrency(nearestReturn.expected_return_eur)}`
-              : "—"
-          }
-          label="Próxima rentabilidad est."
-        />
-      </div>
+      {/* Editorial portfolio header (breaks out of shell padding) */}
+      <PortfolioHeader displayName={displayName} stats={stats} />
 
       {/* Active investments */}
       <section className="mt-10">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Tus inversiones activas
-          </h2>
+        <div className="flex items-end justify-between mb-6">
+          <div>
+            <div className="flex items-center gap-3.5 mb-4">
+              <div className="w-7 h-px bg-rule" aria-hidden="true" />
+              <span className="font-sans text-[9.5px] uppercase tracking-[0.3em] text-muted font-normal">
+                Activas · {activeInvestments.length}{" "}
+                {activeInvestments.length === 1 ? "posición" : "posiciones"}
+              </span>
+            </div>
+            <h2 className="font-serif font-light text-[32px] leading-[1.05] text-text">
+              Tus inversiones <em className="italic">activas</em>
+            </h2>
+          </div>
           <Link
             href={ROUTES.panelActivas}
-            className="text-sm font-medium text-gold hover:text-gold/80 transition-colors"
+            className="font-sans text-[10px] uppercase tracking-[0.24em] text-muted font-normal border-b border-rule pb-[3px] hover:text-text hover:border-text transition-colors"
           >
             Ver todas
           </Link>
         </div>
 
-        {investments.filter((i) => i.status === "active").length > 0 ? (
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
-            {investments
-              .filter((i) => i.status === "active")
-              .map((investment) => (
-                <ActiveInvestmentCard
-                  key={investment.id}
-                  investment={investment}
-                />
-              ))}
+        {activeInvestments.length > 0 ? (
+          <div className="grid gap-[2px] lg:grid-cols-2">
+            {activeInvestments.map((investment) => (
+              <ActiveInvestmentCard
+                key={investment.id}
+                investment={investment}
+              />
+            ))}
           </div>
         ) : (
-          <div className="mt-4 rounded-xl border border-gray-200 bg-white p-8 text-center">
-            <p className="text-sm text-gray-500">
+          <div className="border border-rule bg-[#f8f5ef] p-8 text-center">
+            <p className="font-sans text-[11px] text-muted">
               No tienes inversiones activas.{" "}
               <Link
                 href={ROUTES.panelOportunidades}
-                className="text-gold hover:text-gold/80"
+                className="text-amber hover:opacity-85"
               >
                 Explora las oportunidades disponibles
               </Link>
@@ -312,19 +314,27 @@ export default function PanelDashboardPage() {
       {/* Opportunities preview */}
       {opportunities.length > 0 && (
         <section className="mt-10">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Oportunidades disponibles
-            </h2>
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <div className="flex items-center gap-3.5 mb-4">
+                <div className="w-7 h-px bg-rule" aria-hidden="true" />
+                <span className="font-sans text-[9.5px] uppercase tracking-[0.3em] text-muted font-normal">
+                  Nuevas oportunidades
+                </span>
+              </div>
+              <h2 className="font-serif font-light text-[32px] leading-[1.05] text-text">
+                Oportunidades <em className="italic">disponibles</em>
+              </h2>
+            </div>
             <Link
               href={ROUTES.panelOportunidades}
-              className="text-sm font-medium text-gold hover:text-gold/80 transition-colors"
+              className="font-sans text-[10px] uppercase tracking-[0.24em] text-muted font-normal border-b border-rule pb-[3px] hover:text-text hover:border-text transition-colors"
             >
               Ver todas
             </Link>
           </div>
 
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-[2px] sm:grid-cols-2">
             {opportunities.slice(0, 2).map((car) => (
               <CarCard
                 key={car.id}
@@ -337,15 +347,8 @@ export default function PanelDashboardPage() {
         </section>
       )}
 
-      {/* Activity */}
-      <section className="mt-10">
-        <h2 className="text-lg font-semibold text-gray-900">
-          Actividad reciente
-        </h2>
-        <div className="mt-4">
-          <ActivityTimeline notifications={notifications.slice(0, 5)} />
-        </div>
-      </section>
+      {/* Portfolio charts */}
+      <PortfolioCharts investments={investments} />
     </PanelShell>
   );
 }

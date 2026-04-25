@@ -8,7 +8,7 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="theme-public min-h-screen">
+    <div className="min-h-screen bg-ivory text-text">
       <OrganizationSchema />
       <Navbar />
       {children}

@@ -1,99 +1,75 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import FadeIn from "@/components/public/FadeIn";
-import { ROUTES } from "@/lib/constants";
-import { Search, DollarSign, Ship, TrendingUp } from "lucide-react";
-import Link from "next/link";
+import SectionLabel from "@/components/ui/SectionLabel";
+
+const MIN_INVESTMENT = "€1.000";
 
 const steps = [
   {
-    icon: Search,
-    title: "Seleccionamos",
-    description:
-      "Identificamos vehículos premium en subastas americanas con alto potencial de revalorización en Europa.",
+    n: "01",
+    title: "Explora la colección",
+    body: "Accede a nuestro inventario exclusivo de vehículos pre-seleccionados. Cada listado incluye el historial completo del vehículo, el precio de compra en EE.UU., los costes de importación y el precio de venta estimado en Europa.",
   },
   {
-    icon: DollarSign,
-    title: "Tú inviertes",
-    description:
-      "Formalizas un contrato de préstamo privado bilateral y financias la adquisición del vehículo.",
+    n: "02",
+    title: "Invierte y sigue el proceso",
+    body: `Invierte desde ${MIN_INVESTMENT} por vehículo a través de tu cuenta de inversor. Monitoriza cada fase en tiempo real — desde la importación y preparación hasta la colocación en showroom y la venta final.`,
   },
   {
-    icon: Ship,
-    title: "Importamos",
-    description:
-      "Gestionamos la compra, transporte marítimo y homologación. Tú sigues el progreso en tiempo real.",
-  },
-  {
-    icon: TrendingUp,
-    title: "Cobras tu rentabilidad",
-    description:
-      "Al venderse el vehículo, recuperas tu inversión más un 25% de rentabilidad anualizada.",
+    n: "03",
+    title: "Recibe tu rentabilidad",
+    body: "Cuando el vehículo se vende, tu parte proporcional del beneficio se transfiere directamente a tu cuenta — normalmente entre 6 y 9 meses después de la inversión.",
   },
 ];
 
 export default function HowItWorks() {
   return (
-    <section className="relative py-32">
-      {/* Top separator */}
-      <div className="absolute inset-x-0 top-0">
-        <div className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
-      </div>
+    <section
+      id="how"
+      className="bg-ivory-deep py-[120px] px-6 sm:px-10 lg:px-[88px]"
+    >
+      <div className="mx-auto max-w-shell">
+        <FadeIn>
+          <SectionLabel className="mb-5">El proceso</SectionLabel>
+        </FadeIn>
 
-      <div className="mx-auto max-w-7xl px-6">
-        <FadeIn className="text-center">
-          <h2 className="font-serif text-4xl font-light text-cream sm:text-5xl">
-            Invierte en <span className="text-gold">4 pasos</span>
+        <FadeIn delay={0.1}>
+          <h2 className="font-serif font-light text-[40px] sm:text-[48px] lg:text-[56px] leading-[1.05] tracking-[-0.01em] text-text mb-20">
+            Cómo
+            <br />
+            <em className="italic">funciona</em>
           </h2>
         </FadeIn>
 
-        <div className="mt-20 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {steps.map((step, index) => (
-            <FadeIn key={step.title} delay={index * 0.1}>
-              <div className="group text-center">
-                {/* Step number */}
-                <div className="mb-6 inline-flex items-center gap-3">
-                  <span className="text-xs font-medium text-gold/50">
-                    0{index + 1}
-                  </span>
-                  <div className="h-px w-8 bg-gold/30" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-0">
+          {steps.map((step, i) => (
+            <FadeIn key={step.n} delay={i * 0.15}>
+              <div
+                className={cn(
+                  "h-full",
+                  i < 2 && "lg:pr-[60px] lg:border-r lg:border-rule",
+                  i > 0 && "lg:pl-[60px]"
+                )}
+              >
+                <div className="font-serif font-light text-[64px] leading-none text-rule mb-7">
+                  {step.n}
                 </div>
-
-                {/* Icon */}
-                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-gold/20 bg-gold/5 transition-all duration-300 group-hover:border-gold/40 group-hover:bg-gold/10">
-                  <step.icon className="h-7 w-7 text-gold" strokeWidth={1.5} />
-                </div>
-
-                {/* Content */}
-                <h3 className="text-lg font-semibold text-cream">{step.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-cream/50">
-                  {step.description}
+                <h3 className="font-serif font-light text-[28px] leading-[1.2] text-text mb-5">
+                  {step.title}
+                </h3>
+                <div
+                  className="w-8 h-px bg-rule mb-5"
+                  aria-hidden="true"
+                />
+                <p className="font-sans font-light text-[13px] leading-[1.85] tracking-[0.02em] text-muted">
+                  {step.body}
                 </p>
               </div>
             </FadeIn>
           ))}
         </div>
-
-        <FadeIn delay={0.4} className="mt-16 text-center">
-          <Link
-            href={ROUTES.comoFunciona}
-            className="inline-flex items-center gap-2 rounded-lg border border-gold/50 px-6 py-3 text-sm font-medium text-gold transition-colors hover:border-gold hover:bg-gold/10"
-          >
-            Conoce el proceso completo
-            <svg
-              className="h-4 w-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </Link>
-        </FadeIn>
       </div>
     </section>
   );
