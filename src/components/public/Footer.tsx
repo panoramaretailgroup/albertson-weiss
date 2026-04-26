@@ -37,9 +37,9 @@ export default function Footer() {
       <div className="mx-auto max-w-shell">
         <div className="flex flex-col lg:flex-row justify-between gap-12 mb-16">
           {/* Brand block — alineado a la izquierda */}
-          <div className="max-w-[320px] flex flex-col items-start">
+          <div className="max-w-[320px] flex flex-col items-center">
             <Logo variant="dark" />
-            <p className="mt-6 font-sans font-light text-[12px] leading-[1.8] tracking-[0.02em] text-muted text-left">
+            <p className="mt-6 font-sans font-light text-[12px] leading-[1.8] tracking-[0.02em] text-muted text-center">
               Plataforma privada de inversión en vehículos de lujo entre los
               mercados estadounidense y europeo.
             </p>
