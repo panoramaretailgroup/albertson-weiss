@@ -2,6 +2,7 @@
 
 import SectionLabel from "@/components/ui/SectionLabel";
 import FadeIn from "@/components/public/FadeIn";
+import Logo from "@/components/ui/Logo";
 import { ROUTES } from "@/lib/constants";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -123,12 +124,13 @@ export default function SobreNosotrosContent() {
             <div className="flex justify-center mb-5">
               <SectionLabel>Sobre nosotros</SectionLabel>
             </div>
-            <h1 className="font-serif font-light text-[48px] sm:text-[64px] lg:text-[76px] leading-[1.05] tracking-[-0.01em] text-text">
-              Albertson &amp; Weiss
-              <br />
-              <em className="italic text-amber">Motors</em>
-            </h1>
-            <p className="mx-auto mt-8 max-w-2xl font-sans font-light text-[15px] leading-[1.85] text-muted">
+
+            {/* Logo as hero centerpiece */}
+            <div className="flex justify-center py-12 mb-6">
+              <Logo className="scale-[3.5] sm:scale-[4.5] lg:scale-[5] origin-center" />
+            </div>
+
+            <p className="mx-auto max-w-2xl font-sans font-light text-[15px] leading-[1.85] text-muted">
               Democratizamos el acceso a inversiones en vehículos premium desde
               Estados Unidos.
             </p>
@@ -139,35 +141,40 @@ export default function SobreNosotrosContent() {
       {/* Mission */}
       <section className="bg-ivory pb-24 px-6 sm:px-10 lg:px-[88px]">
         <div className="mx-auto max-w-shell">
-          <div className="max-w-3xl">
-            <FadeIn>
-              <div className="flex items-center gap-3.5 mb-6">
-                <div className="w-7 h-px bg-rule" aria-hidden="true" />
-                <span className="font-sans text-[9.5px] uppercase tracking-[0.3em] text-muted font-normal">
-                  Nuestra misión
-                </span>
+          <FadeIn>
+            <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 lg:gap-16">
+              <div>
+                <div className="flex items-center gap-3.5">
+                  <div className="w-7 h-px bg-rule" aria-hidden="true" />
+                  <span className="font-sans text-[9.5px] uppercase tracking-[0.3em] text-muted font-normal">
+                    Nuestra misión
+                  </span>
+                </div>
               </div>
 
-              <p className="font-sans font-light text-[16px] leading-[1.9] text-text/70">
-                Albertson &amp; Weiss Motors nace con una misión clara:{" "}
-                <span className="text-text font-normal">
-                  hacer accesible la inversión en vehículos premium americanos
-                </span>{" "}
-                a cualquier persona. Aprovechamos la diferencia de precio entre
-                el mercado de subastas de EE.UU. y el mercado europeo para
-                generar operaciones rentables y seguras.
-              </p>
-              <p className="mt-6 font-sans font-light text-[16px] leading-[1.9] text-text/70">
-                Cada operación es{" "}
-                <span className="text-text font-normal">
-                  transparente, legal y trazable
-                </span>
-                . Nuestros inversores no solo obtienen rentabilidad: tienen
-                visibilidad completa sobre dónde está su dinero y qué está
-                ocurriendo con él en cada momento.
-              </p>
-            </FadeIn>
-          </div>
+              <div>
+                <p className="font-sans font-light text-[16px] leading-[1.9] text-text/70">
+                  Albertson &amp; Weiss Motors nace con una misión clara:{" "}
+                  <span className="text-text font-normal">
+                    hacer accesible la inversión en vehículos premium
+                    americanos
+                  </span>{" "}
+                  a cualquier persona. Aprovechamos la diferencia de precio
+                  entre el mercado de subastas de EE.UU. y el mercado europeo
+                  para generar operaciones rentables y seguras.
+                </p>
+                <p className="mt-6 font-sans font-light text-[16px] leading-[1.9] text-text/70">
+                  Cada operación es{" "}
+                  <span className="text-text font-normal">
+                    transparente, legal y trazable
+                  </span>
+                  . Nuestros inversores no solo obtienen rentabilidad: tienen
+                  visibilidad completa sobre dónde está su dinero y qué está
+                  ocurriendo con él en cada momento.
+                </p>
+              </div>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
