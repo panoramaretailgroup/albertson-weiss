@@ -135,7 +135,7 @@ export default function ComoFuncionaContent() {
 
           <FadeIn delay={0.15}>
             <div className="mt-12">
-              <Accordion items={quickFaq} variant="dark" />
+              <Accordion items={quickFaq} />
             </div>
           </FadeIn>
 

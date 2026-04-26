@@ -1,9 +1,10 @@
 "use client";
 
-import PageHero from "@/components/public/PageHero";
+import SectionLabel from "@/components/ui/SectionLabel";
 import FadeIn from "@/components/public/FadeIn";
 import Accordion from "@/components/ui/Accordion";
 import { ROUTES } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 const categories = [
@@ -102,24 +103,49 @@ const categories = [
 export default function FAQContent() {
   return (
     <main>
-      <PageHero
-        title="Preguntas"
-        highlight="frecuentes"
-        subtitle="Todo lo que necesitas saber antes de invertir. Si no encuentras tu respuesta, contacta con nosotros."
-      />
+      {/* Hero */}
+      <section className="bg-ivory pt-40 pb-24 px-6 sm:px-10 lg:px-[88px]">
+        <div className="mx-auto max-w-shell text-center">
+          <FadeIn>
+            <div className="flex justify-center mb-5">
+              <SectionLabel>Soporte</SectionLabel>
+            </div>
+            <h1 className="font-serif font-light text-[48px] sm:text-[64px] lg:text-[76px] leading-[1.05] tracking-[-0.01em] text-text">
+              Preguntas
+              <br />
+              <em className="italic text-amber">frecuentes</em>
+            </h1>
+            <p className="mx-auto mt-8 max-w-2xl font-sans font-light text-[15px] leading-[1.85] text-muted">
+              Todo lo que necesitas saber antes de invertir. Si no encuentras
+              tu respuesta, contacta con nosotros.
+            </p>
+          </FadeIn>
+        </div>
+      </section>
 
-      <section className="pb-32">
-        <div className="mx-auto max-w-3xl px-6">
+      {/* Categories */}
+      <section className="bg-ivory pb-32 px-6 sm:px-10 lg:px-[88px]">
+        <div className="mx-auto max-w-shell">
           {categories.map((category, catIndex) => (
-            <FadeIn key={category.name} delay={catIndex * 0.1}>
-              <div className={catIndex > 0 ? "mt-16" : ""}>
-                <div className="mb-6 flex items-center gap-3">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-gold">
-                    {category.name}
-                  </h2>
-                  <div className="h-px flex-1 bg-gold/10" />
+            <FadeIn key={category.name} delay={catIndex * 0.08}>
+              <div
+                className={cn(
+                  "grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 lg:gap-16",
+                  catIndex > 0 && "pt-16 mt-16 border-t border-rule"
+                )}
+              >
+                {/* Category name */}
+                <div className="lg:pt-6">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-7 h-px bg-rule" aria-hidden="true" />
+                    <span className="font-sans text-[9.5px] uppercase tracking-[0.3em] text-muted font-normal">
+                      {category.name}
+                    </span>
+                  </div>
                 </div>
-                <Accordion items={category.items} variant="dark" />
+
+                {/* Accordion */}
+                <Accordion items={category.items} />
               </div>
             </FadeIn>
           ))}
@@ -127,26 +153,26 @@ export default function FAQContent() {
       </section>
 
       {/* CTA */}
-      <section className="border-t border-gold/10 py-24">
-        <div className="mx-auto max-w-xl px-6 text-center">
+      <section className="bg-black py-24 px-6 sm:px-10 lg:px-[88px]">
+        <div className="mx-auto max-w-xl text-center">
           <FadeIn>
-            <h2 className="font-serif text-3xl font-light text-cream">
-              ¿Tienes más <span className="text-gold">dudas</span>?
+            <h2 className="font-serif font-light text-[40px] sm:text-[48px] leading-[1.05] tracking-[-0.01em] text-white">
+              ¿Tienes más <em className="italic text-amber">dudas</em>?
             </h2>
-            <p className="mt-4 text-cream/50">
+            <p className="mt-6 font-sans font-light text-[14px] leading-[1.85] text-white/50">
               Nuestro equipo está disponible para resolver todas tus preguntas
               antes de invertir.
             </p>
-            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 href={ROUTES.registro}
-                className="rounded-lg bg-gold px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-[#b8983f]"
+                className="bg-amber text-black font-sans text-[10px] uppercase tracking-[0.26em] font-normal px-9 py-4 hover:opacity-85 transition-opacity"
               >
                 Contactar con el equipo
               </Link>
               <a
                 href="mailto:info@albertsonweiss.com"
-                className="rounded-lg border border-gold/50 px-6 py-3 text-sm font-medium text-gold transition-colors hover:border-gold hover:bg-gold/10"
+                className="border border-white/30 text-white/70 font-sans text-[10px] uppercase tracking-[0.26em] font-normal px-9 py-4 hover:border-white hover:text-white transition-colors"
               >
                 info@albertsonweiss.com
               </a>

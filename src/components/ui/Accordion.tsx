@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 
 interface AccordionItem {
@@ -11,57 +10,51 @@ interface AccordionItem {
 
 interface AccordionProps {
   items: AccordionItem[];
-  variant?: "dark" | "light";
   className?: string;
 }
 
-export default function Accordion({
-  items,
-  variant = "dark",
-  className,
-}: AccordionProps) {
+export default function Accordion({ items, className }: AccordionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-  const isDark = variant === "dark";
 
   return (
-    <div className={cn("divide-y", isDark ? "divide-gold/10" : "divide-gray-200", className)}>
+    <div className={cn("divide-y divide-rule", className)}>
       {items.map((item, index) => {
         const isOpen = openIndex === index;
-
         return (
           <div key={index}>
             <button
+              type="button"
               onClick={() => setOpenIndex(isOpen ? null : index)}
-              className={cn(
-                "flex w-full items-center justify-between py-5 text-left transition-colors",
-                isDark
-                  ? "text-cream hover:text-gold"
-                  : "text-gray-900 hover:text-gray-600"
-              )}
+              className="flex w-full items-center justify-between py-6 text-left group"
               aria-expanded={isOpen}
             >
-              <span className="pr-4 text-base font-medium">{item.question}</span>
-              <ChevronDown
+              <span className="pr-6 font-sans font-normal text-[15px] text-text group-hover:text-amber transition-colors">
+                {item.question}
+              </span>
+              <svg
                 className={cn(
-                  "h-5 w-5 shrink-0 transition-transform duration-200",
-                  isOpen && "rotate-180",
-                  isDark ? "text-gold/50" : "text-gray-400"
+                  "w-3.5 h-3.5 shrink-0 text-muted transition-transform duration-200",
+                  isOpen && "rotate-180"
                 )}
-              />
+                viewBox="0 0 14 14"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M2 5l5 5 5-5" />
+              </svg>
             </button>
             <div
               className={cn(
                 "grid transition-all duration-200 ease-in-out",
-                isOpen ? "grid-rows-[1fr] pb-5" : "grid-rows-[0fr]"
+                isOpen ? "grid-rows-[1fr] pb-6" : "grid-rows-[0fr]"
               )}
             >
               <div className="overflow-hidden">
-                <p
-                  className={cn(
-                    "text-sm leading-relaxed",
-                    isDark ? "text-cream/50" : "text-gray-500"
-                  )}
-                >
+                <p className="font-sans font-light text-[13px] leading-[1.9] text-muted pr-12">
                   {item.answer}
                 </p>
               </div>
